@@ -11,7 +11,6 @@
 #define ESP_INTR_FLAG_DEFAULT 0
 #define GPIO_PIN_SEL_CALC(gpio) (1ULL<<gpio)
 #define LONG_PRESS_DELAY 500
-#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 
 void initButtons(void);
 void addButton(uint8_t gpioPin);

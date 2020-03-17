@@ -1,6 +1,6 @@
 {
     "C_Cpp.clang_format_style": "Visual Studio",
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "[cpp]": {
         "editor.quickSuggestions": true
     },
@@ -11,6 +11,7 @@
     "files.associations": {
         "freertos.h": "c",
         "buttons.h": "c",
-        "queue.h": "c"
+        "queue.h": "c",
+        "esp_log.h": "c"
     }
 } 
