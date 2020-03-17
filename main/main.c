@@ -5,12 +5,10 @@
 #include "buttons.h"
 #include "hello.h"
 
-
-
 void app_main(void)
 {
   initButtons();
   addButton(23);
-  
+
   initHello();
 }

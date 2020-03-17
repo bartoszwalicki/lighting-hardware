@@ -1,27 +1,28 @@
 #include "buttons.h"
 
-static xQueueHandle gpio_evt_queue = NULL;
+static xQueueHandle gpioPushEventsQueue = NULL;
+static const char* TAG = "Buttons";
 
 static void IRAM_ATTR gpioIsrHandler(void* arg)
 {
     uint32_t gpio_num = (uint32_t) arg;
     gpio_isr_handler_remove(gpio_num);
-    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+    xQueueSendFromISR(gpioPushEventsQueue, &gpio_num, NULL);
 }
 
 static void handleButtonPush(void* arg)
 {
     uint32_t io_num;
     for(;;) {
-        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+        if(xQueueReceive(gpioPushEventsQueue, &io_num, portMAX_DELAY)) {
             vTaskDelay(80/portTICK_RATE_MS);
             if(gpio_get_level(io_num) == 0) {
-                printf("GPIO[%d] intr, val: %d %d\n", io_num, gpio_get_level(io_num), rand() % 50);
+                ESP_LOGI(TAG, "Button GPIO[%d] pushed \n", io_num);
             }
 
             vTaskDelay(LONG_PRESS_DELAY/portTICK_RATE_MS);
             if(gpio_get_level(io_num) == 0) {
-                printf("GPIO[%d] intr, val: %d %d LONG \n", io_num, gpio_get_level(io_num), rand() % 50);
+                ESP_LOGI(TAG, "Button GPIO[%d] pushed LONG \n", io_num);
             }
 
 
@@ -31,7 +32,7 @@ static void handleButtonPush(void* arg)
 }
 
 void initButtons() {
-    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+    gpioPushEventsQueue = xQueueCreate(10, sizeof(uint32_t));
     xTaskCreate(handleButtonPush, "buttonHandler", 2048, NULL, 10, NULL);
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 }
