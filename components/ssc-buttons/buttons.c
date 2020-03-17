@@ -25,7 +25,7 @@ static void handleButtonPush(void* arg)
                 ESP_LOGI(TAG, "Button GPIO[%d] pushed LONG \n", io_num);
             }
 
-
+            xQueueSend(buttonActionsHandleQueue, &io_num, 0);
             gpio_isr_handler_add(io_num, gpioIsrHandler, (void*) io_num);
         }
     }
@@ -33,6 +33,7 @@ static void handleButtonPush(void* arg)
 
 void initButtons() {
     gpioPushEventsQueue = xQueueCreate(10, sizeof(uint32_t));
+
     xTaskCreate(handleButtonPush, "buttonHandler", 2048, NULL, 10, NULL);
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 }
