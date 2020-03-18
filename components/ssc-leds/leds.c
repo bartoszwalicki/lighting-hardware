@@ -1,12 +1,13 @@
 #include "leds.h"
 
+static xQueueHandle* buttonQueueHandle = NULL;
 TaskHandle_t handleEventFromQueueTaskHandler = NULL;
 static uint8_t ledState = 0;
 
 static void handleEventFromQueue(void* arg) {
     uint8_t channelNumber;
     while(1) {
-        if(xQueueReceive(buttonActionsHandleQueue, &channelNumber, portMAX_DELAY)) {
+        if(xQueueReceive(*buttonQueueHandle, &channelNumber, portMAX_DELAY)) {
             printf("Received channel num: %d \n", channelNumber);
             if(!ledState) {
                 ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 4095, 250,LEDC_FADE_NO_WAIT);
@@ -22,7 +23,9 @@ static void handleEventFromQueue(void* arg) {
     }
 };
 
-void initLeds() {
+void initLeds(xQueueHandle* queueHandler) {
+    buttonQueueHandle = queueHandler;
+
     ledc_fade_func_install(0);
 
     xTaskCreate(handleEventFromQueue,"handleEventFromQueue", 2048, NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
@@ -47,11 +50,4 @@ void addChannel(uint8_t gpio) {
     };
 
     ledc_channel_config(&ledc_channel);
-
-    // while(1) {
-    //     ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 0, 3000,LEDC_FADE_NO_WAIT);
-    //     vTaskDelay(5000/portTICK_PERIOD_MS);
-    //     ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 4095, 3000,LEDC_FADE_NO_WAIT);
-    //     vTaskDelay(5000/portTICK_PERIOD_MS);
-    // }
 }

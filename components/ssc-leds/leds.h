@@ -7,9 +7,7 @@
 #include "freertos/queue.h"
 #include "driver/ledc.h"
 
-extern QueueHandle_t buttonActionsHandleQueue;
-
-void initLeds();
+void initLeds(xQueueHandle* queueHandler);
 void addChannel(uint8_t gpio);
 
 #endif

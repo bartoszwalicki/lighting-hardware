@@ -12,9 +12,7 @@
 #define GPIO_PIN_SEL_CALC(gpio) (1ULL<<gpio)
 #define LONG_PRESS_DELAY 500
 
-extern QueueHandle_t buttonActionsHandleQueue;
-
-void initButtons();
+void initButtons(xQueueHandle* queueHandler);
 void addButton(uint8_t gpioPin);
 
 #endif
