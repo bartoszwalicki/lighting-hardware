@@ -18,12 +18,12 @@ static void handleButtonPush(void* arg)
         if(xQueueReceive(gpioPushEventsQueue, &io_num, portMAX_DELAY)) {
             vTaskDelay(80/portTICK_RATE_MS);
             if(gpio_get_level(io_num) == 0) {
-                ESP_LOGI(TAG, "Button GPIO[%d] pushed \n", io_num);
+                ESP_LOGI(TAG, "Button GPIO[%d] pushed", io_num);
             }
 
             vTaskDelay(LONG_PRESS_DELAY/portTICK_RATE_MS);
             if(gpio_get_level(io_num) == 0) {
-                ESP_LOGI(TAG, "Button GPIO[%d] pushed LONG \n", io_num);
+                ESP_LOGI(TAG, "Button GPIO[%d] pushed LONG", io_num);
             }
 
             xQueueSend(*buttonQueueHandle, &io_num, 0);

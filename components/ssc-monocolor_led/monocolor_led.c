@@ -3,20 +3,19 @@
 static xQueueHandle* buttonQueueHandle = NULL;
 TaskHandle_t handleEventFromQueueTaskHandler = NULL;
 static uint8_t ledState = 0;
+static const char* TAG = "MonocolorLED";
 
 static void handleEventFromQueue(void* arg) {
     uint8_t channelNumber;
     while(1) {
         if(xQueueReceive(*buttonQueueHandle, &channelNumber, portMAX_DELAY)) {
-            printf("Received channel num: %d \n", channelNumber);
+            ESP_LOGI(TAG,"Changing state of channel %d to %d", channelNumber, !ledState);
             if(!ledState) {
                 ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 4095, 250,LEDC_FADE_NO_WAIT);
-                ledState = 1;
             } else {
-                 ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 0, 250,LEDC_FADE_NO_WAIT);
-                ledState = 0;
+                ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 0, 250,LEDC_FADE_NO_WAIT);
             }
-            vTaskDelay(50/ portTICK_RATE_MS);
+            ledState = !ledState;
         }
 
         vTaskDelay(50/ portTICK_RATE_MS);
