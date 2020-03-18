@@ -27,7 +27,7 @@ void app_main(void)
   for(int i=0; i<gpioMapSize; i++, ptr++) {
     if(ptr->inputGpioPin && ptr->outputLedChannelPin) {
       addButton(ptr->inputGpioPin);
-      addChannel(ptr->outputLedChannelPin);
+      addChannel(ptr);
     }
   }
 }
