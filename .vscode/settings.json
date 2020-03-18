@@ -14,6 +14,9 @@
         "queue.h": "c",
         "esp_log.h": "c",
         "esp_system.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "leds.h": "c",
+        "monocolor_led_stripes.h": "c",
+        "monocolor_led.h": "c"
     }
 } 

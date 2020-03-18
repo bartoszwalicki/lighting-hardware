@@ -1,5 +1,5 @@
-#ifndef LEDS_H
-#define LEDS_H
+#ifndef MONOCOLOR_LED_H
+#define MONOCOLOR_LED_H
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
