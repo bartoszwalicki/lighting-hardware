@@ -18,6 +18,8 @@
         "leds.h": "c",
         "monocolor_led_stripes.h": "c",
         "monocolor_led.h": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "types.h": "c",
+        "ledc.h": "c"
     }
 } 

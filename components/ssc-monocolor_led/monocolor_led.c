@@ -4,6 +4,8 @@ static xQueueHandle* buttonQueueHandle = NULL;
 TaskHandle_t handleEventFromQueueTaskHandler = NULL;
 static uint8_t ledState = 0;
 static const char* TAG = "MonocolorLED";
+static struct ChannelGpioMap** channelGpioMap = NULL;
+static uint8_t* mapSize = NULL;
 
 static void handleEventFromQueue(void* arg) {
     uint8_t channelNumber;
@@ -22,8 +24,17 @@ static void handleEventFromQueue(void* arg) {
     }
 };
 
-void initLeds(xQueueHandle* queueHandler) {
+void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap* map[], uint8_t* mapSize) {
     buttonQueueHandle = queueHandler;
+    channelGpioMap = map;
+    mapSize = mapSize;
+
+    struct ChannelGpioMap* ptr = channelGpioMap;
+    for (size_t i = 0; i < *mapSize; i++, ptr++)
+    {
+        printf("Data: %d %d", ptr->inputGpioPin, ptr->outputLedChannelPin);
+    }
+    
 
     ledc_fade_func_install(0);
 

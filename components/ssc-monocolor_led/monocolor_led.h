@@ -8,7 +8,9 @@
 #include "driver/ledc.h"
 #include "esp_log.h"
 
-void initLeds(xQueueHandle* queueHandler);
+#include "../../main/types.h"
+
+void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap* map[], uint8_t* mapSize);
 void addChannel(uint8_t gpio);
 
 #endif
