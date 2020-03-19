@@ -25,7 +25,7 @@ static void handleEventFromQueue(void* arg) {
     }
 };
 
-void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap** map, const uint8_t* mapSize) {
+void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap* map[], const uint8_t* mapSize) {
     buttonQueueHandle = queueHandler;
     channelGpioMap = map;
     mapSize = mapSize;
