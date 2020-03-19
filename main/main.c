@@ -20,7 +20,7 @@ void app_main(void)
   };
 
   initButtons(&buttonActionsHandleQueue);
-  initLeds(&buttonActionsHandleQueue, &channelGpioMap, &gpioMapSize);
+  initLeds(&buttonActionsHandleQueue, (struct ChannelGpioMap**) &channelGpioMap, &gpioMapSize);
   
   struct ChannelGpioMap* ptr = channelGpioMap;
 

@@ -10,7 +10,7 @@
 
 #include "../../main/types.h"
 
-void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap* map[], const uint8_t* mapSize);
+void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap** map, const uint8_t* mapSize);
 void addChannel(struct ChannelGpioMap* channelConfig);
 
 #endif
