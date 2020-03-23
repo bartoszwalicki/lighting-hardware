@@ -24,6 +24,7 @@
         "mqtt_client.h": "c",
         "stdbool.h": "c",
         "string.h": "c",
-        "esp_err.h": "c"
+        "esp_err.h": "c",
+        "stdio.h": "c"
     }
 } 

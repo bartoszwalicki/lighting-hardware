@@ -2,35 +2,38 @@
 
 static xQueueHandle* buttonQueueHandle = NULL;
 TaskHandle_t handleEventFromQueueTaskHandler = NULL;
-static uint8_t ledState = 0;
 static const char* TAG = "MonocolorLED";
-static struct ChannelGpioMap** channelGpioMap = NULL;
-static uint8_t* mapSizePtr = NULL;
 
 static void handleEventFromQueue(void* arg) {
+    uint8_t ledState = 0;
     uint8_t inputGpioNumber;
+    uint8_t ledcChannel = 0;
+
     while(1) {
         if(xQueueReceive(*buttonQueueHandle, &inputGpioNumber, portMAX_DELAY)) {
-            ESP_LOGI(TAG,"Changing state of channel %d to %d", inputGpioNumber, !ledState);
-            lookupLedcChannel(&inputGpioNumber);
-            if(!ledState) {
-                ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 4095, 250,LEDC_FADE_NO_WAIT);
-            } else {
-                ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 0, 250,LEDC_FADE_NO_WAIT);
+            struct ChannelGpioMap* ptr = channelGpioMap;
+
+            for (size_t i = 0; i < gpioMapSize; i++, ptr++)
+            {
+                if(ptr->inputGpioPin == inputGpioNumber) {
+                    ESP_LOGI(TAG,"Changing state of channel %d to %d to target duty of %d \r", ptr->ledcChannel, !ptr->currentState, ptr->targetDuty);
+
+                    if(!ptr->currentState) {
+                        ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel, ptr->targetDuty, 250,LEDC_FADE_NO_WAIT);
+                    } else {
+                        ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel, 0, 250,LEDC_FADE_NO_WAIT);
+                    }
+                    ptr->currentState = !(ptr->currentState);
+                }
             }
-            ledState = !ledState;
         }
 
         vTaskDelay(50/ portTICK_RATE_MS);
     }
 };
 
-void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap** map, const uint8_t* mapSize) {
+void initLeds(xQueueHandle* queueHandler) {
     buttonQueueHandle = queueHandler;
-    channelGpioMap = map;
-    printf("POINTER_U: %p \n\r", mapSize);
-    printf("VALUE_U: %d \n\r", *mapSize);
-    mapSizePtr = mapSize;
 
     ledc_fade_func_install(0);
 
@@ -56,17 +59,4 @@ void addChannel(struct ChannelGpioMap* channelConfig) {
     };
 
     ledc_channel_config(&ledc_channel);
-}
-
-void lookupLedcChannel(uint8_t* gpioPin) {
-    struct ChannelGpioMap* ptr = channelGpioMap;
-    printf("Data: %p \n\r", mapSizePtr);
-    printf("Data: %d \n\r", *mapSizePtr);
-    // for (size_t i = 0; i < *mapSizePtr; i++, ptr++)
-    // {
-    //     printf("Data: %d %d \n\r", ptr->inputGpioPin, ptr->outputLedChannelPin);
-    //     // if(ptr->inputGpioPin == *gpioPin) {
-    //     //     printf("Data: %d %d", ptr->inputGpioPin, ptr->outputLedChannelPin);
-    //     // }
-    // }
 }

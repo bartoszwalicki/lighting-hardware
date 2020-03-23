@@ -10,8 +10,11 @@
 
 #include "../../main/types.h"
 
-void lookupLedcChannel(uint8_t* gpioPin);
-void initLeds(xQueueHandle* queueHandler, struct ChannelGpioMap** map, const uint8_t* mapSize);
+extern struct ChannelGpioMap channelGpioMap[2];
+extern const uint8_t gpioMapSize;
+
+uint8_t lookupLedcChannel(uint8_t* gpioPin);
+void initLeds(xQueueHandle* queueHandler);
 void addChannel(struct ChannelGpioMap* channelConfig);
 
 #endif

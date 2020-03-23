@@ -8,26 +8,32 @@
 #include "hello.h"
 #include "monocolor_led.h"
 
+#define SIZE_OF_GPIO_INPUTS 2;
+
 QueueHandle_t buttonActionsHandleQueue = NULL;
+const uint8_t gpioMapSize = SIZE_OF_GPIO_INPUTS;
+struct ChannelGpioMap channelGpioMap[2] = {
+  // Kitchen - sink
+  {.inputGpioPin = 23, .outputLedChannelPin = 5, .ledcChannel = LEDC_CHANNEL_0, .currentState = false, .targetDuty = 4095},
+  // Kitches - wine stand
+  {.inputGpioPin = 23, .outputLedChannelPin = 4, .ledcChannel = LEDC_CHANNEL_1, .currentState = false, .targetDuty = 2000}
+};
 
 void app_main(void)
 {
   buttonActionsHandleQueue = xQueueCreate(5, sizeof(uint8_t));
 
-  const uint8_t gpioMapSize = 1;
-  struct ChannelGpioMap channelGpioMap[1] = {
-    {.inputGpioPin = 23, .outputLedChannelPin = 5, .ledcChannel = LEDC_CHANNEL_0}
-  };
+
 
   initButtons(&buttonActionsHandleQueue);
-  initLeds(&buttonActionsHandleQueue, (struct ChannelGpioMap**) &channelGpioMap, &gpioMapSize);
+  initLeds(&buttonActionsHandleQueue);
   
   struct ChannelGpioMap* ptr = channelGpioMap;
 
-  for(int i=0; i<gpioMapSize; i++, ptr++) {
-    if(ptr->inputGpioPin && ptr->outputLedChannelPin) {
-      addButton(ptr->inputGpioPin);
-      addChannel(ptr);
-    }
-  }
+  // Kitchen
+  addButton(channelGpioMap[0].inputGpioPin);
+  // Kitchen - sink
+  addChannel(&channelGpioMap[0]);
+  // Kitchen - wine stand
+  addChannel(&channelGpioMap[1]);
 }
