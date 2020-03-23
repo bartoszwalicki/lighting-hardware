@@ -19,21 +19,21 @@ struct ChannelGpioMap channelGpioMap[] = {
   {.inputGpioPin = 23, .outputLedChannelPin = 4, .ledcChannel = LEDC_CHANNEL_1, .currentState = false, .targetDuty = 2000}
 };
 
-void app_main(void)
-{
-  buttonActionsHandleQueue = xQueueCreate(5, sizeof(uint8_t));
-
-
-
-  initButtons(&buttonActionsHandleQueue);
-  initLeds(&buttonActionsHandleQueue);
-  
-  struct ChannelGpioMap* ptr = channelGpioMap;
-
+void configButtonsAndLeds() {
   // [Kitchen]
   addButton(channelGpioMap[0].inputGpioPin);
   // Kitchen - sink
   addChannel(&channelGpioMap[0]);
   // Kitchen - wine stand
   addChannel(&channelGpioMap[1]);
+}
+
+void app_main(void)
+{
+  buttonActionsHandleQueue = xQueueCreate(5, sizeof(uint8_t));
+
+  initButtons(&buttonActionsHandleQueue);
+  initLeds(&buttonActionsHandleQueue);
+
+  configButtonsAndLeds();
 }
