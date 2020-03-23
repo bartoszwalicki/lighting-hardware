@@ -11,8 +11,8 @@
 #define SIZE_OF_GPIO_INPUTS 2;
 
 QueueHandle_t buttonActionsHandleQueue = NULL;
-const uint8_t gpioMapSize = SIZE_OF_GPIO_INPUTS;
-struct ChannelGpioMap channelGpioMap[2] = {
+const uint8_t channelGpioMapSize = SIZE_OF_GPIO_INPUTS;
+struct ChannelGpioMap channelGpioMap[] = {
   // Kitchen - sink
   {.inputGpioPin = 23, .outputLedChannelPin = 5, .ledcChannel = LEDC_CHANNEL_0, .currentState = false, .targetDuty = 4095},
   // Kitches - wine stand
@@ -30,7 +30,7 @@ void app_main(void)
   
   struct ChannelGpioMap* ptr = channelGpioMap;
 
-  // Kitchen
+  // [Kitchen]
   addButton(channelGpioMap[0].inputGpioPin);
   // Kitchen - sink
   addChannel(&channelGpioMap[0]);

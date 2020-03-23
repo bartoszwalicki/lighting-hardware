@@ -13,7 +13,7 @@ static void handleEventFromQueue(void* arg) {
         if(xQueueReceive(*buttonQueueHandle, &inputGpioNumber, portMAX_DELAY)) {
             struct ChannelGpioMap* ptr = channelGpioMap;
 
-            for (size_t i = 0; i < gpioMapSize; i++, ptr++)
+            for (size_t i = 0; i < channelGpioMapSize; i++, ptr++)
             {
                 if(ptr->inputGpioPin == inputGpioNumber) {
                     ESP_LOGI(TAG,"Changing state of channel %d to %d to target duty of %d \r", ptr->ledcChannel, !ptr->currentState, ptr->targetDuty);
