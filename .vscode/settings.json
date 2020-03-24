@@ -25,6 +25,8 @@
         "stdbool.h": "c",
         "string.h": "c",
         "esp_err.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "wifi_connection.h": "c",
+        "condition_variable": "c"
     }
 } 
