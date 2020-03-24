@@ -10,15 +10,14 @@
 
 #include "../../main/types.h"
 
-#define DELAY_OF_POWER_OF_12V 10000
+#define DELAY_POWER_OFF_12V 10000
 
 extern struct ChannelGpioMap channelGpioMap[];
-extern const uint8_t channelGpioMapSize;
 
 void powerOff12vSourceTask(void *pvParameters);
 void init12vPowerSource();
 void powerOn12vSource();
-void powerOff12vSource();
+void schedulePowerOf12vSource();
 
 uint8_t lookupLedcChannel(uint8_t* gpioPin);
 void initLeds(xQueueHandle* queueHandler);

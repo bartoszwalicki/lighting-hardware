@@ -10,7 +10,6 @@ static const char* TAG = "MonocolorLED";
 static uint8_t powerPinState = 1;
 
 
-
 static void handleEventFromQueue(void* arg) {
     uint8_t inputGpioNumber;
 
@@ -18,7 +17,7 @@ static void handleEventFromQueue(void* arg) {
         if(xQueueReceive(*buttonQueueHandle, &inputGpioNumber, portMAX_DELAY)) {
             struct ChannelGpioMap* ptr = channelGpioMap;
 
-            for (size_t i = 0; i < channelGpioMapSize; i++, ptr++)
+            for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
             {
                 if(ptr->inputGpioPin == inputGpioNumber) {
                     ESP_LOGI(TAG,"Changing state of channel %d to %d to target duty of %d \r", ptr->ledcChannel, !ptr->currentState, ptr->targetDuty);
@@ -30,7 +29,7 @@ static void handleEventFromQueue(void* arg) {
                     ledc_fade_start(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel,LEDC_FADE_NO_WAIT);
                 }
             }
-            powerOff12vSource();
+            schedulePowerOf12vSource();
         }
 
         vTaskDelay(50/ portTICK_RATE_MS);
@@ -68,12 +67,12 @@ void addChannel(struct ChannelGpioMap* channelConfig) {
 
 void powerOn12vSource() {
     struct ChannelGpioMap* ptr = channelGpioMap;
-    for (size_t i = 0; i < channelGpioMapSize; i++, ptr++)
+    for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
     {
         if(ptr->currentState) {
 
             if(powerOffTaskHandler != NULL) {
-                printf("Delaying task!\n\r");
+                ESP_LOGD(TAG, "Deleting power off task\r");
                 vTaskDelete(powerOffTaskHandler);
                 powerOffTaskHandler = NULL;
             }
@@ -96,11 +95,11 @@ void powerOn12vSource() {
     return;
 }
 
-void powerOff12vSource() {
+void schedulePowerOf12vSource() {
     bool isAnyActive = false;
 
     struct ChannelGpioMap* ptr = channelGpioMap;
-    for (size_t i = 0; i < channelGpioMapSize; i++, ptr++)
+    for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
     {
         isAnyActive = isAnyActive | ptr -> currentState;
     }
@@ -113,20 +112,19 @@ void powerOff12vSource() {
 }
 
 void init12vPowerSource() {
-    gpio_pad_select_gpio( (1ULL<<POWER_LED_12V_GPIO_PIN));
+    gpio_pad_select_gpio(POWER_LED_12V_GPIO_PIN);
     gpio_set_direction(POWER_LED_12V_GPIO_PIN, GPIO_MODE_OUTPUT);
     gpio_set_level(POWER_LED_12V_GPIO_PIN, 1);
 }
 
 void powerOff12vSourceTask(void *pvParameters) {
-    printf("Power off planned\n\r");
-    vTaskDelay(DELAY_OF_POWER_OF_12V/portTICK_RATE_MS);
+    ESP_LOGD(TAG, "Power off planned\r");
+    vTaskDelay(DELAY_POWER_OFF_12V/portTICK_RATE_MS);
 
-    printf("No active inputs, power down... \n\r");
     powerPinState = 1;
     gpio_set_level(POWER_LED_12V_GPIO_PIN, 1);
 
-    printf("Powered off...\n\r");
+    ESP_LOGI(TAG, "12V source powered off\r");
 
     TaskHandle_t tempHandler = powerOffTaskHandler;
     powerOffTaskHandler = NULL;
