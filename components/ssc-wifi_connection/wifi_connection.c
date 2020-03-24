@@ -1,5 +1,11 @@
 #include "wifi_connection.h"
 
+static EventGroupHandle_t s_wifi_event_group;
+
+static const char *TAG = "wifi station";
+
+static int s_retry_num = 0;
+
 static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {

@@ -20,14 +20,8 @@
 #define EXAMPLE_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
 #define EXAMPLE_ESP_MAXIMUM_RETRY  CONFIG_ESP_MAXIMUM_RETRY
 
-static EventGroupHandle_t s_wifi_event_group;
-
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
-
-static const char *TAG = "wifi station";
-
-static int s_retry_num = 0;
 
 void wifi_init_sta(void);
 
