@@ -11,7 +11,7 @@
 
 QueueHandle_t buttonActionsHandleQueue = NULL;
 const uint8_t channelGpioMapSize = SIZE_OF_GPIO_INPUTS;
-struct ChannelGpioMap channelGpioMap[] = {
+struct ChannelGpioMap channelGpioMap[SIZE_OF_GPIO_INPUTS] = {
   // Kitchen - sink
   {.inputGpioPin = 23, .outputLedChannelPin = 5, .ledcChannel = LEDC_CHANNEL_0, .currentState = false, .targetDuty = 4095},
   // Kitches - wine stand
