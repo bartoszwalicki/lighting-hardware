@@ -9,4 +9,7 @@ struct ChannelGpioMap {
   uint32_t targetDuty;
 };
 
+#define SIZE_OF_GPIO_INPUTS 2;
+#define POWER_LED_12V_GPIO_PIN 19;
+
 #endif

@@ -13,6 +13,10 @@
 extern struct ChannelGpioMap channelGpioMap[];
 extern const uint8_t channelGpioMapSize;
 
+void init12vPowerSource();
+void powerOn12vSource();
+void powerOff12vSource();
+
 uint8_t lookupLedcChannel(uint8_t* gpioPin);
 void initLeds(xQueueHandle* queueHandler);
 void addChannel(struct ChannelGpioMap* channelConfig);

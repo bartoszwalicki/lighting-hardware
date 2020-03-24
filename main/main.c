@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/gpio.h"
 
 #include "types.h"
 
 #include "buttons.h"
 #include "hello.h"
 #include "monocolor_led.h"
-
-#define SIZE_OF_GPIO_INPUTS 2;
 
 QueueHandle_t buttonActionsHandleQueue = NULL;
 const uint8_t channelGpioMapSize = SIZE_OF_GPIO_INPUTS;
@@ -34,6 +33,8 @@ void app_main(void)
 
   initButtons(&buttonActionsHandleQueue);
   initLeds(&buttonActionsHandleQueue);
+
+  init12vPowerSource();
 
   configButtonsAndLeds();
 }
