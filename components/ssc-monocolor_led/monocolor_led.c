@@ -17,7 +17,6 @@ static void handleEventFromQueue(void* arg) {
                 if(ptr->inputGpioPin == inputGpioNumber) {
                     ESP_LOGI(TAG,"Changing state of channel %d to %d to target duty of %d \r", ptr->ledcChannel, !ptr->currentState, ptr->targetDuty);
                     ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel, ptr->currentState?0:ptr->targetDuty, 250);
-                    // ledc_set_fade_time_and_start(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel, ptr->currentState?0:ptr->targetDuty, 250, LEDC_FADE_NO_WAIT);
                     
                     ptr->currentState = !(ptr->currentState);
                     powerOn12vSource();
@@ -70,15 +69,14 @@ void powerOn12vSource() {
         if(ptr->currentState) {
 
             if(!powerState) {
-                printf("Power source is on, returning... \n\r");
-                // Power source is on, returning
+                ESP_LOGD(TAG, "12V power source is on, returning\r");
                 return;    
             }
 
-            // Power up source
-            printf("Power up source... \n\r");
+            ESP_LOGI(TAG, "Powering up 12V source\r");
             powerState = 0;
             gpio_set_level(gpio, 0);
+            // Wait until hardware power source will spin up
             vTaskDelay(750/portTICK_RATE_MS);
             return;
         } 
@@ -99,7 +97,6 @@ void powerOff12vSource() {
 
     if(!isAnyActive) {
         vTaskDelay(750/portTICK_RATE_MS);
-        // There are no active buttons, power off source.
         printf("No active inputs, power down... \n\r");
         powerState = 1;
         gpio_set_level(gpio, 1);
