@@ -1,3 +1,3 @@
-set(COMPONENT_ADD_INCLUDEDIRS .)
-set(COMPONENT_SRCS "monocolor_led.c")
-register_component()
+idf_component_register( SRCS "monocolor_led.c"
+                        INCLUDE_DIRS "."
+                        REQUIRES ssc-mqtt_connection)

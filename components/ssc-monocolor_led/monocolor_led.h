@@ -10,6 +10,8 @@
 
 #include "../../main/types.h"
 
+#include "mqtt_connection.h"
+
 #define DELAY_POWER_OFF_12V 10000
 
 extern struct ChannelGpioMap channelGpioMap[];
