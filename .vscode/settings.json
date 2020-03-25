@@ -29,6 +29,9 @@
         "wifi_connection.h": "c",
         "condition_variable": "c",
         "mqtt.h": "c",
-        "mqtt_connection.h": "c"
+        "mqtt_connection.h": "c",
+        "charconv": "c",
+        "sstream": "c",
+        "regex": "c"
     }
 } 

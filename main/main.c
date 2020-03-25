@@ -16,9 +16,9 @@
 QueueHandle_t buttonActionsHandleQueue = NULL;
 struct ChannelGpioMap channelGpioMap[SIZE_OF_GPIO_INPUTS] = {
   // Kitchen - sink
-  {.inputGpioPin = 23, .outputLedChannelPin = 5, .ledcChannel = LEDC_CHANNEL_0, .currentState = false, .targetDuty = 4095},
+  {.inputGpioPin = 23, .outputLedChannelPin = 5, .ledcChannel = LEDC_CHANNEL_0, .currentState = false, .targetDuty = 4095, .topic="kitchen/sink\0"},
   // Kitches - wine stand
-  {.inputGpioPin = 23, .outputLedChannelPin = 4, .ledcChannel = LEDC_CHANNEL_1, .currentState = false, .targetDuty = 2000}
+  {.inputGpioPin = 23, .outputLedChannelPin = 4, .ledcChannel = LEDC_CHANNEL_1, .currentState = false, .targetDuty = 2000, .topic="kitchen/wine\0"}
 };
 
 void configButtonsAndLeds() {

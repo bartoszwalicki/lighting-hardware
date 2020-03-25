@@ -17,6 +17,7 @@
 extern struct ChannelGpioMap channelGpioMap[];
 
 void powerOff12vSourceTask(void *pvParameters);
+void setLedState(struct ChannelGpioMap* channelInfo, bool sendMqtt, int customDuty);
 void init12vPowerSource();
 void powerOn12vSource();
 void schedulePowerOf12vSource();

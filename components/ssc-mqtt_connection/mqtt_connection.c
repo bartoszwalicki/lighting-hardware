@@ -51,5 +51,8 @@ void mqtt_app_start(void)
 }
 
 void mqttPublish(const char * topic, const char * data) {
-    esp_mqtt_client_publish(_client, topic, data, 0, 0, 1);
+    char valueTopic[20];
+    sprintf(valueTopic, "%s/v", topic);
+
+    esp_mqtt_client_publish(_client, valueTopic, data, 0, 0, 0);
 }

@@ -7,6 +7,7 @@ struct ChannelGpioMap {
   uint8_t ledcChannel;
   bool currentState;
   uint32_t targetDuty;
+  char topic[20];
 };
 
 #define SIZE_OF_GPIO_INPUTS 2
