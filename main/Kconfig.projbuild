@@ -17,4 +17,14 @@ menu "Example Configuration"
         default 5
         help
             Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
+
+    config BROKER_URL
+        string "Broker URL"
+        default "mqtt://mqtt.eclipse.org"
+        help
+            URL of the broker to connect to
+
+    config BROKER_URL_FROM_STDIN
+        bool
+        default y if BROKER_URL = "FROM_STDIN"
 endmenu

@@ -11,6 +11,7 @@
 #include "hello.h"
 #include "monocolor_led.h"
 #include "wifi_connection.h"
+#include "mqtt_connection.h"
 
 QueueHandle_t buttonActionsHandleQueue = NULL;
 struct ChannelGpioMap channelGpioMap[SIZE_OF_GPIO_INPUTS] = {
@@ -49,4 +50,6 @@ void app_main(void)
     ESP_ERROR_CHECK(ret);
 
     wifi_init_sta();
+
+    mqtt_app_start();
 }

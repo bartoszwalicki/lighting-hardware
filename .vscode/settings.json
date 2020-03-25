@@ -27,6 +27,8 @@
         "esp_err.h": "c",
         "stdio.h": "c",
         "wifi_connection.h": "c",
-        "condition_variable": "c"
+        "condition_variable": "c",
+        "mqtt.h": "c",
+        "mqtt_connection.h": "c"
     }
 } 
