@@ -10,6 +10,11 @@ struct ChannelGpioMap {
   char topic[20];
 };
 
+struct MqttMessageEvent {
+  char topic[20];
+  uint8_t value;
+};
+
 #define SIZE_OF_GPIO_INPUTS 2
 #define POWER_LED_12V_GPIO_PIN 19
 

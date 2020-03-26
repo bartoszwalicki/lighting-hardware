@@ -14,6 +14,7 @@
 #include "mqtt_connection.h"
 
 QueueHandle_t buttonActionsHandleQueue = NULL;
+QueueHandle_t mqttIncomingEventsHandleQueue = NULL;
 struct ChannelGpioMap channelGpioMap[SIZE_OF_GPIO_INPUTS] = {
   // Kitchen - sink
   {.inputGpioPin = 23, .outputLedChannelPin = 5, .ledcChannel = LEDC_CHANNEL_0, .currentState = false, .targetDuty = 4095, .topic="kitchen/sink\0"},
@@ -33,6 +34,7 @@ void configButtonsAndLeds() {
 void app_main(void)
 {
   buttonActionsHandleQueue = xQueueCreate(5, sizeof(uint8_t));
+  mqttIncomingEventsHandleQueue = xQueueCreate(10, sizeof(uint8_t));
 
   initButtons(&buttonActionsHandleQueue);
   initLeds(&buttonActionsHandleQueue);
@@ -51,5 +53,5 @@ void app_main(void)
 
     wifi_init_sta();
 
-    mqtt_app_start();
+    mqttInit();
 }

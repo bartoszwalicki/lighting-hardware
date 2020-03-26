@@ -15,6 +15,7 @@
 #define DELAY_POWER_OFF_12V 10000
 
 extern struct ChannelGpioMap channelGpioMap[];
+extern QueueHandle_t mqttIncomingEventsHandleQueue;
 
 void powerOff12vSourceTask(void *pvParameters);
 void setLedState(struct ChannelGpioMap* channelInfo, bool sendMqtt, int customDuty);
