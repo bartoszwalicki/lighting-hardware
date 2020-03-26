@@ -24,8 +24,8 @@ void handleMqttIncomingEvent(esp_mqtt_event_handle_t event) {
 
     // fprintf("TRUNC: %s %d\n\r", messageToQueue.topic, messageToQueue.value);
     printf("Queue pointer: %p \n\r", &mqttIncomingEventsHandleQueue);
-
-    xQueueSend(mqttIncomingEventsHandleQueue, 10, 0);
+    uint8_t temp = 10;
+    xQueueSend(mqttIncomingEventsHandleQueue, &temp, 0);
 }
 
 esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)

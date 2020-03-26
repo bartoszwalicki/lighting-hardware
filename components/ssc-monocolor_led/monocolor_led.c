@@ -31,12 +31,12 @@ static void handleEventFromQueue(void* arg) {
 };
 
 static void handleIncomingEventFromMqttQueue(void* arg) {
-    // uint8_t messageToQueue;
+    uint8_t messageToQueue;
 
     while(1) {
-        // if(xQueueReceive(mqttIncomingEventsHandleQueue, &messageToQueue, portMAX_DELAY)) {
-        //     // printf("Received! %d", 10);
-        // }
+        if(xQueueReceive(mqttIncomingEventsHandleQueue, &messageToQueue, portMAX_DELAY)) {
+            printf("Received! %d\n\r", 10);
+        }
 
         vTaskDelay(50/ portTICK_RATE_MS);
     }
@@ -48,7 +48,7 @@ void initLeds(xQueueHandle* queueHandler) {
     ledc_fade_func_install(0);
 
     xTaskCreate(handleEventFromQueue,"handleEventFromQueue", 2048, NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
-    xTaskCreate(handleIncomingEventFromMqttQueue, "mqttEventQueue", 2048, NULL, tskIDLE_PRIORITY, &mqttIncomingEventsHandleQueue);
+    xTaskCreate(handleIncomingEventFromMqttQueue, "mqttEventQueue", 2048, NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
 }
 
 void addChannel(struct ChannelGpioMap* channelConfig) {
