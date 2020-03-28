@@ -1,7 +1,7 @@
 #include "buttons.h"
 
 static xQueueHandle gpioPushEventsQueue = NULL;
-static xQueueHandle *buttonQueueHandle = NULL;
+static xQueueHandle *button_queue_handle = NULL;
 static const char *TAG = "Buttons";
 
 static void IRAM_ATTR gpioIsrHandler(void *arg) {
@@ -24,14 +24,14 @@ static void handleButtonPush(void *arg) {
         ESP_LOGI(TAG, "Button GPIO[%d] pushed LONG", io_num);
       }
 
-      xQueueSend(*buttonQueueHandle, &io_num, 0);
+      xQueueSend(*button_queue_handle, &io_num, 0);
       gpio_isr_handler_add(io_num, gpioIsrHandler, (void *)io_num);
     }
   }
 }
 
 void initButtons(xQueueHandle *queueHandler) {
-  buttonQueueHandle = queueHandler;
+  button_queue_handle = queueHandler;
   gpioPushEventsQueue = xQueueCreate(10, sizeof(uint32_t));
 
   xTaskCreate(handleButtonPush, "buttonHandler", 2048, NULL, 10, NULL);

@@ -1,6 +1,6 @@
 #include "monocolor_led.h"
 
-static xQueueHandle *buttonQueueHandle = NULL;
+static xQueueHandle *button_queue_handle = NULL;
 
 TaskHandle_t handleEventFromQueueTaskHandler = NULL;
 TaskHandle_t powerOffTaskHandler = NULL;
@@ -9,31 +9,33 @@ static const char *TAG = "MonocolorLED";
 
 static uint8_t powerPinState = 1;
 
-static void handleEventFromButtonQueue(void *arg) {
-  uint8_t inputGpioNumber;
+static void handle_event_from_button_queue(void *arg) {
+  uint8_t input_gpio_number;
 
   while (1) {
-    if (xQueueReceive(*buttonQueueHandle, &inputGpioNumber, portMAX_DELAY)) {
-      full_toggle_led_with_fade(inputGpioNumber);
+    if (xQueueReceive(*button_queue_handle, &input_gpio_number,
+                      portMAX_DELAY)) {
+      full_toggle_led_with_fade(input_gpio_number);
     }
 
     vTaskDelay(50 / portTICK_RATE_MS);
   }
 };
 
-static void handleIncomingEventFromMqttQueue(void *arg) {
-  struct MqttMessageEvent messageToQueue;
+static void handle_incoming_event_from_mqtt_queue(void *arg) {
+  struct MqttMessageEvent message_to_queue;
 
   while (1) {
-    if (xQueueReceive(mqttIncomingEventsHandleQueue, &messageToQueue,
+    if (xQueueReceive(mqttIncomingEventsHandleQueue, &message_to_queue,
                       portMAX_DELAY)) {
 
-      printf("Received! %s %d\n\r", messageToQueue.topic, messageToQueue.value);
+      printf("Received! %s %d\n\r", message_to_queue.topic,
+             message_to_queue.value);
 
       struct ChannelGpioMap *ptr = channelGpioMap;
       for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
-        if (!strcmp(ptr->topic, messageToQueue.topic)) {
-          setLedState(ptr, true, messageToQueue.value);
+        if (!strcmp(ptr->topic, message_to_queue.topic)) {
+          setLedState(ptr, true, message_to_queue.value);
         }
       }
     }
@@ -42,15 +44,15 @@ static void handleIncomingEventFromMqttQueue(void *arg) {
   }
 };
 
-void initLeds(xQueueHandle *queueHandler) {
-  buttonQueueHandle = queueHandler;
+void initLeds(xQueueHandle *button_queue_handler) {
+  button_queue_handle = button_queue_handler;
 
   ledc_fade_func_install(0);
 
-  xTaskCreate(handleEventFromButtonQueue, "handleEventFromQueue", 2048, NULL,
-              tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
-  xTaskCreate(handleIncomingEventFromMqttQueue, "mqttEventQueue", 2048, NULL,
-              tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
+  xTaskCreate(handle_event_from_button_queue, "handleEventFromQueue", 2048,
+              NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
+  xTaskCreate(handle_incoming_event_from_mqtt_queue, "mqttEventQueue", 2048,
+              NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
 }
 
 void addChannel(struct ChannelGpioMap *channelConfig) {
