@@ -27,7 +27,7 @@ void init_12v_power_source();
 void power_on_12v_source();
 void schedule_power_off_12v_source();
 
-uint8_t lookupLedcChannel(uint8_t *gpioPin);
+uint8_t lookupled_channel(uint8_t *gpioPin);
 void init_leds(xQueueHandle *queueHandler);
 void add_channel(struct ChannelGpioMap *channelConfig);
 

@@ -17,23 +17,23 @@ QueueHandle_t buttonActionsHandleQueue = NULL;
 QueueHandle_t mqttIncomingEventsHandleQueue = NULL;
 struct ChannelGpioMap channelGpioMap[SIZE_OF_GPIO_INPUTS] = {
     // Kitchen - sink
-    {.inputGpioPin = 23,
-     .outputLedChannelPin = 5,
-     .ledcChannel = LEDC_CHANNEL_0,
-     .currentState = false,
-     .targetDuty = 4095,
+    {.input_gpio_pin = 23,
+     .output_led_channel_pin = 5,
+     .led_channel = LEDC_CHANNEL_0,
+     .current_state = false,
+     .target_duty = 4095,
      .topic = "kitchen/sink\0"},
     // Kitches - wine stand
-    {.inputGpioPin = 23,
-     .outputLedChannelPin = 4,
-     .ledcChannel = LEDC_CHANNEL_1,
-     .currentState = false,
-     .targetDuty = 2000,
+    {.input_gpio_pin = 23,
+     .output_led_channel_pin = 4,
+     .led_channel = LEDC_CHANNEL_1,
+     .current_state = false,
+     .target_duty = 2000,
      .topic = "kitchen/wine\0"}};
 
-void configButtonsAndLeds() {
+void config_buttons_and_leds() {
   // [Kitchen]
-  addButton(channelGpioMap[0].inputGpioPin);
+  addButton(channelGpioMap[0].input_gpio_pin);
   // Kitchen - sink
   add_channel(&channelGpioMap[0]);
   // Kitchen - wine stand
@@ -50,7 +50,7 @@ void app_main(void) {
 
   init_12v_power_source();
 
-  configButtonsAndLeds();
+  config_buttons_and_leds();
 
   // Initialize NVS
   esp_err_t ret = nvs_flash_init();

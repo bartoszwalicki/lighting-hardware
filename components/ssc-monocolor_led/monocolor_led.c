@@ -63,12 +63,12 @@ void add_channel(struct ChannelGpioMap *channelConfig) {
 
   ledc_timer_config(&ledc_timer);
 
-  ledc_channel_config_t ledc_channel = {.channel = channelConfig->ledcChannel,
-                                        .duty = 0,
-                                        .gpio_num =
-                                            channelConfig->outputLedChannelPin,
-                                        .speed_mode = LEDC_HIGH_SPEED_MODE,
-                                        .timer_sel = LEDC_TIMER_0};
+  ledc_channel_config_t ledc_channel = {
+      .channel = channelConfig->led_channel,
+      .duty = 0,
+      .gpio_num = channelConfig->output_led_channel_pin,
+      .speed_mode = LEDC_HIGH_SPEED_MODE,
+      .timer_sel = LEDC_TIMER_0};
 
   ledc_channel_config(&ledc_channel);
 }
@@ -76,7 +76,7 @@ void add_channel(struct ChannelGpioMap *channelConfig) {
 void power_on_12v_source() {
   struct ChannelGpioMap *ptr = channelGpioMap;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
-    if (ptr->currentState) {
+    if (ptr->current_state) {
 
       if (power_off_task_handler != NULL) {
         ESP_LOGD(TAG, "Deleting power off task\r");
@@ -141,20 +141,20 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
   if (custom_duty > -1) {
     selected_duty = custom_duty;
   } else {
-    selected_duty = channel_info->currentState ? 0 : channel_info->targetDuty;
+    selected_duty = channel_info->current_state ? 0 : channel_info->target_duty;
   }
 
   ESP_LOGI(TAG, "Changing state of channel %d to %d to target duty of %d \r",
-           channel_info->ledcChannel, !channel_info->currentState,
-           channel_info->targetDuty);
-  ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, channel_info->ledcChannel,
+           channel_info->led_channel, !channel_info->current_state,
+           channel_info->target_duty);
+  ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, channel_info->led_channel,
                           selected_duty, 450);
 
-  channel_info->currentState =
-      selected_duty == 0 ? false : !(channel_info->currentState);
+  channel_info->current_state =
+      selected_duty == 0 ? false : !(channel_info->current_state);
   power_on_12v_source();
 
-  ledc_fade_start(LEDC_HIGH_SPEED_MODE, channel_info->ledcChannel,
+  ledc_fade_start(LEDC_HIGH_SPEED_MODE, channel_info->led_channel,
                   LEDC_FADE_NO_WAIT);
 
   if (send_mqtt) {
@@ -173,18 +173,18 @@ void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
 
   struct ChannelGpioMap *ptr = channelGpioMap;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
-    if (input_gpio_pin == ptr->inputGpioPin) {
-      uint32_t target_duty = is_any_on_state == 0 ? ptr->targetDuty : 0;
-      ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel,
+    if (input_gpio_pin == ptr->input_gpio_pin) {
+      uint32_t target_duty = is_any_on_state == 0 ? ptr->target_duty : 0;
+      ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
                               target_duty, 450);
 
-      ptr->currentState = target_duty == 0 ? false : true;
+      ptr->current_state = target_duty == 0 ? false : true;
       power_on_12v_source();
 
       ESP_LOGI(TAG,
                "Changing state of channel %d to %d to target duty of %d \r",
-               ptr->ledcChannel, ptr->currentState, target_duty);
-      ledc_fade_start(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel,
+               ptr->led_channel, ptr->current_state, target_duty);
+      ledc_fade_start(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
                       LEDC_FADE_NO_WAIT);
 
       char temp[5];
@@ -200,8 +200,8 @@ bool is_any_on(uint8_t input_gpio_pin) {
 
   struct ChannelGpioMap *ptr = channelGpioMap;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
-    if (input_gpio_pin == ptr->inputGpioPin) {
-      is_any_active = is_any_active | ptr->currentState;
+    if (input_gpio_pin == ptr->input_gpio_pin) {
+      is_any_active = is_any_active | ptr->current_state;
     }
   }
 
@@ -213,7 +213,7 @@ bool is_any_on_global(void) {
 
   struct ChannelGpioMap *ptr = channelGpioMap;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
-    is_any_active = is_any_active | ptr->currentState;
+    is_any_active = is_any_active | ptr->current_state;
   }
 
   return is_any_active;

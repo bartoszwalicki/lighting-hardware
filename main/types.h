@@ -2,11 +2,11 @@
 #define TYPES_H
 
 struct ChannelGpioMap {
-  uint8_t inputGpioPin;
-  uint8_t outputLedChannelPin;
-  uint8_t ledcChannel;
-  bool currentState;
-  uint32_t targetDuty;
+  uint8_t input_gpio_pin;
+  uint8_t output_led_channel_pin;
+  uint8_t led_channel;
+  bool current_state;
+  uint32_t target_duty;
   char topic[20];
 };
 
