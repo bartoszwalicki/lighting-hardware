@@ -12,7 +12,7 @@ struct ChannelGpioMap {
 
 struct MqttMessageEvent {
   char topic[20];
-  uint8_t value;
+  uint32_t value;
 };
 
 #define SIZE_OF_GPIO_INPUTS 2

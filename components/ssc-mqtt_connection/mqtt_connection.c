@@ -13,19 +13,17 @@ void handleMqttIncomingEvent(esp_mqtt_event_handle_t event) {
     sprintf(truncTopic, "%.*s", event->topic_len, event->topic); ;
     truncTopic[event->topic_len - 2] = 0;
 
+    struct MqttMessageEvent messageToQueue;
+    strcpy(messageToQueue.topic,truncTopic);
+
     if(isdigit(*event->data)) {
-        sscanf(event->data, "%d", &value);
+        sprintf(truncTopic, "%.*s", event->data_len, event->data); ;
+        sscanf(&truncTopic, "%d", &value);
+        printf("Converted value: %d\n\r", value);
     }
 
-    struct MqttMessageEvent messageToQueue;
-    memcpy(messageToQueue.topic, truncTopic, 20);
     messageToQueue.value = value;
-    //strcpy(messageToQueue.topic,truncTopic);
-
-    // fprintf("TRUNC: %s %d\n\r", messageToQueue.topic, messageToQueue.value);
-    printf("Queue pointer: %p \n\r", &mqttIncomingEventsHandleQueue);
-    uint8_t temp = 10;
-    xQueueSend(mqttIncomingEventsHandleQueue, &temp, 0);
+    xQueueSend(mqttIncomingEventsHandleQueue, &messageToQueue, 0);
 }
 
 esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)

@@ -17,6 +17,9 @@
 extern struct ChannelGpioMap channelGpioMap[];
 extern QueueHandle_t mqttIncomingEventsHandleQueue;
 
+bool is_any_on(uint8_t input_gpio_pin);
+bool is_any_on_global(void);
+void full_toggle_led_with_fade(uint8_t input_gpio_pin);
 void powerOff12vSourceTask(void *pvParameters);
 void setLedState(struct ChannelGpioMap* channelInfo, bool sendMqtt, int customDuty);
 void init12vPowerSource();

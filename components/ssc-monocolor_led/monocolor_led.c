@@ -10,20 +10,12 @@ static const char* TAG = "MonocolorLED";
 static uint8_t powerPinState = 1;
 
 
-static void handleEventFromQueue(void* arg) {
+static void handleEventFromButtonQueue(void* arg) {
     uint8_t inputGpioNumber;
 
     while(1) {
         if(xQueueReceive(*buttonQueueHandle, &inputGpioNumber, portMAX_DELAY)) {
-            struct ChannelGpioMap* ptr = channelGpioMap;
-
-            for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
-            {
-                if(ptr->inputGpioPin == inputGpioNumber) {
-                   setLedState(ptr, true, -1);
-                }
-            }
-            schedulePowerOf12vSource();
+           full_toggle_led_with_fade(inputGpioNumber);
         }
 
         vTaskDelay(50/ portTICK_RATE_MS);
@@ -31,11 +23,20 @@ static void handleEventFromQueue(void* arg) {
 };
 
 static void handleIncomingEventFromMqttQueue(void* arg) {
-    uint8_t messageToQueue;
+    struct MqttMessageEvent messageToQueue;
 
     while(1) {
         if(xQueueReceive(mqttIncomingEventsHandleQueue, &messageToQueue, portMAX_DELAY)) {
-            printf("Received! %d\n\r", 10);
+
+            printf("Received! %s %d\n\r", messageToQueue.topic, messageToQueue.value);
+
+            struct ChannelGpioMap* ptr = channelGpioMap;
+            for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
+            {
+               if(!strcmp(ptr -> topic,messageToQueue.topic)) {
+                   setLedState(ptr, true, messageToQueue.value);
+               }
+            }
         }
 
         vTaskDelay(50/ portTICK_RATE_MS);
@@ -47,7 +48,7 @@ void initLeds(xQueueHandle* queueHandler) {
 
     ledc_fade_func_install(0);
 
-    xTaskCreate(handleEventFromQueue,"handleEventFromQueue", 2048, NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
+    xTaskCreate(handleEventFromButtonQueue,"handleEventFromQueue", 2048, NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
     xTaskCreate(handleIncomingEventFromMqttQueue, "mqttEventQueue", 2048, NULL, tskIDLE_PRIORITY, &handleEventFromQueueTaskHandler);
 }
 
@@ -103,13 +104,7 @@ void powerOn12vSource() {
 }
 
 void schedulePowerOf12vSource() {
-    bool isAnyActive = false;
-
-    struct ChannelGpioMap* ptr = channelGpioMap;
-    for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
-    {
-        isAnyActive = isAnyActive | ptr -> currentState;
-    }
+    bool isAnyActive = is_any_on_global();
 
     if(!isAnyActive) {
         xTaskCreate(powerOff12vSourceTask, "powerOff12", 2048, NULL, tskIDLE_PRIORITY, &powerOffTaskHandler);
@@ -125,7 +120,7 @@ void init12vPowerSource() {
 }
 
 void powerOff12vSourceTask(void *pvParameters) {
-    ESP_LOGD(TAG, "Power off planned\r");
+    ESP_LOGI(TAG, "Power off planned\r");
     vTaskDelay(DELAY_POWER_OFF_12V/portTICK_RATE_MS);
 
     powerPinState = 1;
@@ -161,4 +156,59 @@ void setLedState(struct ChannelGpioMap* channelInfo, bool sendMqtt, int customDu
         sprintf(temp, "%d", selectedDuty);
         mqttPublish(channelInfo->topic, temp);
     }
+
+    if(selectedDuty == 0) {
+        schedulePowerOf12vSource();
+    }
+}
+
+
+void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
+   bool is_any_on_state = is_any_on(input_gpio_pin);
+
+    struct ChannelGpioMap* ptr = channelGpioMap;
+    for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
+    {
+        if(input_gpio_pin == ptr -> inputGpioPin) {
+            uint32_t target_duty = is_any_on_state==0?ptr->targetDuty:0;
+            ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel, target_duty, 450);
+        
+            ptr->currentState = target_duty==0?false:true;
+            powerOn12vSource();
+
+            ESP_LOGI(TAG,"Changing state of channel %d to %d to target duty of %d \r", ptr->ledcChannel, ptr->currentState, target_duty);
+            ledc_fade_start(LEDC_HIGH_SPEED_MODE, ptr->ledcChannel,LEDC_FADE_NO_WAIT);
+
+            char temp[5];
+            sprintf(temp, "%d", target_duty);
+            mqttPublish(ptr->topic, temp);
+        }
+    }
+    schedulePowerOf12vSource();
+}
+
+bool is_any_on(uint8_t input_gpio_pin) {
+    bool is_any_active = false;
+
+    struct ChannelGpioMap* ptr = channelGpioMap;
+    for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
+    {
+        if(input_gpio_pin == ptr -> inputGpioPin) {
+            is_any_active = is_any_active | ptr -> currentState;
+        }
+    }
+
+    return is_any_active;
+}
+
+bool is_any_on_global(void) {
+        bool is_any_active = false;
+
+    struct ChannelGpioMap* ptr = channelGpioMap;
+    for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++)
+    {
+        is_any_active = is_any_active | ptr -> currentState;
+    }
+
+    return is_any_active;
 }

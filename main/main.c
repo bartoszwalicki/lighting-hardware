@@ -34,7 +34,7 @@ void configButtonsAndLeds() {
 void app_main(void)
 {
   buttonActionsHandleQueue = xQueueCreate(5, sizeof(uint8_t));
-  mqttIncomingEventsHandleQueue = xQueueCreate(10, sizeof(uint8_t));
+  mqttIncomingEventsHandleQueue = xQueueCreate(10, sizeof(struct MqttMessageEvent));
 
   initButtons(&buttonActionsHandleQueue);
   initLeds(&buttonActionsHandleQueue);
