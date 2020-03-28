@@ -7,9 +7,6 @@ void handleMqttIncomingEvent(esp_mqtt_event_handle_t event) {
   char truncTopic[20];
   uint32_t value = 0;
 
-  printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-  printf("DATA=%.*s\r\n", event->data_len, event->data);
-
   sprintf(truncTopic, "%.*s", event->topic_len, event->topic);
   ;
   truncTopic[event->topic_len - 2] = 0;
@@ -21,7 +18,6 @@ void handleMqttIncomingEvent(esp_mqtt_event_handle_t event) {
     sprintf(truncTopic, "%.*s", event->data_len, event->data);
     ;
     sscanf(&truncTopic, "%d", &value);
-    printf("Converted value: %d\n\r", value);
   }
 
   messageToQueue.value = value;

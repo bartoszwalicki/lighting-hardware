@@ -29,9 +29,6 @@ static void handle_incoming_event_from_mqtt_queue(void *arg) {
     if (xQueueReceive(mqttIncomingEventsHandleQueue, &message_to_queue,
                       portMAX_DELAY)) {
 
-      printf("Received! %s %d\n\r", message_to_queue.topic,
-             message_to_queue.value);
-
       struct ChannelGpioMap *ptr = channelGpioMap;
       for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
         if (!strcmp(ptr->topic, message_to_queue.topic)) {
@@ -147,15 +144,14 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
   ESP_LOGI(TAG, "Changing state of channel %d to %d to target duty of %d \r",
            channel_info->led_channel, !channel_info->current_state,
            channel_info->target_duty);
-  ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, channel_info->led_channel,
-                          selected_duty, 450);
+
+  ledc_set_duty(LEDC_HIGH_SPEED_MODE, channel_info->led_channel, selected_duty);
 
   channel_info->current_state =
       selected_duty == 0 ? false : !(channel_info->current_state);
   power_on_12v_source();
 
-  ledc_fade_start(LEDC_HIGH_SPEED_MODE, channel_info->led_channel,
-                  LEDC_FADE_NO_WAIT);
+  ledc_update_duty(LEDC_HIGH_SPEED_MODE, channel_info->led_channel);
 
   if (send_mqtt) {
     char temp[5];
