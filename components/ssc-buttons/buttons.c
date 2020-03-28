@@ -4,7 +4,7 @@ static xQueueHandle gpioPushEventsQueue = NULL;
 static xQueueHandle *button_queue_handle = NULL;
 static const char *TAG = "Buttons";
 
-static void IRAM_ATTR gpioIsrHandler(void *arg) {
+static void IRAM_ATTR gpio_isr_handler(void *arg) {
   uint32_t gpio_num = (uint32_t)arg;
   gpio_isr_handler_remove(gpio_num);
   xQueueSendFromISR(gpioPushEventsQueue, &gpio_num, NULL);
@@ -25,7 +25,7 @@ static void handleButtonPush(void *arg) {
       }
 
       xQueueSend(*button_queue_handle, &io_num, 0);
-      gpio_isr_handler_add(io_num, gpioIsrHandler, (void *)io_num);
+      gpio_isr_handler_add(io_num, gpio_isr_handler, (void *)io_num);
     }
   }
 }
@@ -38,14 +38,14 @@ void initButtons(xQueueHandle *queueHandler) {
   gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 }
 
-void addButton(uint8_t gpioPin) {
+void addButton(uint8_t gpio_pin) {
   gpio_config_t io_conf;
   io_conf.intr_type = GPIO_PIN_INTR_NEGEDGE;
-  io_conf.pin_bit_mask = GPIO_PIN_SEL_CALC(gpioPin);
+  io_conf.pin_bit_mask = GPIO_PIN_SEL_CALC(gpio_pin);
   io_conf.mode = GPIO_MODE_INPUT;
   io_conf.pull_up_en = 1;
   io_conf.pull_down_en = 0;
   gpio_config(&io_conf);
 
-  gpio_isr_handler_add(gpioPin, gpioIsrHandler, (void *)gpioPin);
+  gpio_isr_handler_add(gpio_pin, gpio_isr_handler, (void *)gpio_pin);
 }

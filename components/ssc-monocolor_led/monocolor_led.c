@@ -136,22 +136,22 @@ void powerOff12vSourceTask(void *pvParameters) {
 
 void setLedState(struct ChannelGpioMap *channelInfo, bool sendMqtt,
                  int customDuty) {
-  uint32_t selectedDuty = -1;
+  uint32_t selected_duty = -1;
 
   if (customDuty > -1) {
-    selectedDuty = customDuty;
+    selected_duty = customDuty;
   } else {
-    selectedDuty = channelInfo->currentState ? 0 : channelInfo->targetDuty;
+    selected_duty = channelInfo->currentState ? 0 : channelInfo->targetDuty;
   }
 
   ESP_LOGI(TAG, "Changing state of channel %d to %d to target duty of %d \r",
            channelInfo->ledcChannel, !channelInfo->currentState,
            channelInfo->targetDuty);
   ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, channelInfo->ledcChannel,
-                          selectedDuty, 450);
+                          selected_duty, 450);
 
   channelInfo->currentState =
-      selectedDuty == 0 ? false : !(channelInfo->currentState);
+      selected_duty == 0 ? false : !(channelInfo->currentState);
   powerOn12vSource();
 
   ledc_fade_start(LEDC_HIGH_SPEED_MODE, channelInfo->ledcChannel,
@@ -159,11 +159,11 @@ void setLedState(struct ChannelGpioMap *channelInfo, bool sendMqtt,
 
   if (sendMqtt) {
     char temp[5];
-    sprintf(temp, "%d", selectedDuty);
+    sprintf(temp, "%d", selected_duty);
     mqttPublish(channelInfo->topic, temp);
   }
 
-  if (selectedDuty == 0) {
+  if (selected_duty == 0) {
     schedulePowerOf12vSource();
   }
 }
