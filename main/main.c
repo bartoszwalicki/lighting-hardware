@@ -35,9 +35,9 @@ void configButtonsAndLeds() {
   // [Kitchen]
   addButton(channelGpioMap[0].inputGpioPin);
   // Kitchen - sink
-  addChannel(&channelGpioMap[0]);
+  add_channel(&channelGpioMap[0]);
   // Kitchen - wine stand
-  addChannel(&channelGpioMap[1]);
+  add_channel(&channelGpioMap[1]);
 }
 
 void app_main(void) {
@@ -46,9 +46,9 @@ void app_main(void) {
       xQueueCreate(10, sizeof(struct MqttMessageEvent));
 
   initButtons(&buttonActionsHandleQueue);
-  initLeds(&buttonActionsHandleQueue);
+  init_leds(&buttonActionsHandleQueue);
 
-  init12vPowerSource();
+  init_12v_power_source();
 
   configButtonsAndLeds();
 

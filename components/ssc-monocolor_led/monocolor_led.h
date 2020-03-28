@@ -20,15 +20,15 @@ extern QueueHandle_t mqttIncomingEventsHandleQueue;
 bool is_any_on(uint8_t input_gpio_pin);
 bool is_any_on_global(void);
 void full_toggle_led_with_fade(uint8_t input_gpio_pin);
-void powerOff12vSourceTask(void *pvParameters);
-void setLedState(struct ChannelGpioMap *channelInfo, bool sendMqtt,
-                 int customDuty);
-void init12vPowerSource();
-void powerOn12vSource();
-void schedulePowerOf12vSource();
+void power_off_12v_source_task(void *pvParameters);
+void set_led_state(struct ChannelGpioMap *channelInfo, bool sendMqtt,
+                   int customDuty);
+void init_12v_power_source();
+void power_on_12v_source();
+void schedule_power_off_12v_source();
 
 uint8_t lookupLedcChannel(uint8_t *gpioPin);
-void initLeds(xQueueHandle *queueHandler);
-void addChannel(struct ChannelGpioMap *channelConfig);
+void init_leds(xQueueHandle *queueHandler);
+void add_channel(struct ChannelGpioMap *channelConfig);
 
 #endif
