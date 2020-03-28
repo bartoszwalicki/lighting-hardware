@@ -4,75 +4,78 @@ const char *TAG = "MQTT";
 esp_mqtt_client_handle_t _client = NULL;
 
 void handleMqttIncomingEvent(esp_mqtt_event_handle_t event) {
-    char truncTopic[20];
-    uint32_t value = 0;
-    
-    printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-    printf("DATA=%.*s\r\n", event->data_len, event->data);
+  char truncTopic[20];
+  uint32_t value = 0;
 
-    sprintf(truncTopic, "%.*s", event->topic_len, event->topic); ;
-    truncTopic[event->topic_len - 2] = 0;
+  printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+  printf("DATA=%.*s\r\n", event->data_len, event->data);
 
-    struct MqttMessageEvent messageToQueue;
-    strcpy(messageToQueue.topic,truncTopic);
+  sprintf(truncTopic, "%.*s", event->topic_len, event->topic);
+  ;
+  truncTopic[event->topic_len - 2] = 0;
 
-    if(isdigit(*event->data)) {
-        sprintf(truncTopic, "%.*s", event->data_len, event->data); ;
-        sscanf(&truncTopic, "%d", &value);
-        printf("Converted value: %d\n\r", value);
-    }
+  struct MqttMessageEvent messageToQueue;
+  strcpy(messageToQueue.topic, truncTopic);
 
-    messageToQueue.value = value;
-    xQueueSend(mqttIncomingEventsHandleQueue, &messageToQueue, 0);
+  if (isdigit(*event->data)) {
+    sprintf(truncTopic, "%.*s", event->data_len, event->data);
+    ;
+    sscanf(&truncTopic, "%d", &value);
+    printf("Converted value: %d\n\r", value);
+  }
+
+  messageToQueue.value = value;
+  xQueueSend(mqttIncomingEventsHandleQueue, &messageToQueue, 0);
 }
 
-esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
-{
-    esp_mqtt_client_handle_t client = event->client;
-    // your_context_t *context = event->context;
-    switch (event->event_id) {
-        case MQTT_EVENT_CONNECTED:
-            esp_mqtt_client_subscribe(client, "kitchen/sink/s", 0);
-            break;
-        case MQTT_EVENT_DISCONNECTED:
-            ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
-            break;
-        case MQTT_EVENT_UNSUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
-            break;
-        case MQTT_EVENT_DATA:
-            handleMqttIncomingEvent(event);
-            break;
-        case MQTT_EVENT_ERROR:
-            ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
-            break;
-        default:
-            ESP_LOGI(TAG, "Other event id:%d", event->event_id);
-            break;
-    }
-    return ESP_OK;
+esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
+  esp_mqtt_client_handle_t client = event->client;
+  // your_context_t *context = event->context;
+  switch (event->event_id) {
+  case MQTT_EVENT_CONNECTED:
+    esp_mqtt_client_subscribe(client, "kitchen/sink/s", 0);
+    break;
+  case MQTT_EVENT_DISCONNECTED:
+    ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+    break;
+  case MQTT_EVENT_UNSUBSCRIBED:
+    ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+    break;
+  case MQTT_EVENT_DATA:
+    handleMqttIncomingEvent(event);
+    break;
+  case MQTT_EVENT_ERROR:
+    ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
+    break;
+  default:
+    ESP_LOGI(TAG, "Other event id:%d", event->event_id);
+    break;
+  }
+  return ESP_OK;
 }
 
-void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
-    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
-    mqtt_event_handler_cb(event_data);
+void mqtt_event_handler(void *handler_args, esp_event_base_t base,
+                        int32_t event_id, void *event_data) {
+  ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base,
+           event_id);
+  mqtt_event_handler_cb(event_data);
 }
 
-void mqttInit(void)
-{
-    esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = CONFIG_BROKER_URL,
-    };
+void mqttInit(void) {
+  esp_mqtt_client_config_t mqtt_cfg = {
+      .uri = CONFIG_BROKER_URL,
+  };
 
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-    _client = client;
-    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, client);
-    esp_mqtt_client_start(client);
+  esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+  _client = client;
+  esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler,
+                                 client);
+  esp_mqtt_client_start(client);
 }
 
-void mqttPublish(const char * topic, const char * data) {
-    char valueTopic[20];
-    sprintf(valueTopic, "%s/v", topic);
+void mqttPublish(const char *topic, const char *data) {
+  char valueTopic[20];
+  sprintf(valueTopic, "%s/v", topic);
 
-    esp_mqtt_client_publish(_client, valueTopic, data, 0, 0, 0);
+  esp_mqtt_client_publish(_client, valueTopic, data, 0, 0, 0);
 }
