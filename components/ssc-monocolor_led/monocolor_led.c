@@ -147,8 +147,8 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
 
   ledc_set_duty(LEDC_HIGH_SPEED_MODE, channel_info->led_channel, selected_duty);
 
-  channel_info->current_state =
-      selected_duty == 0 ? false : !(channel_info->current_state);
+  channel_info->current_state = selected_duty == 0 ? false : true;
+
   power_on_12v_source();
 
   ledc_update_duty(LEDC_HIGH_SPEED_MODE, channel_info->led_channel);
@@ -172,7 +172,7 @@ void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
     if (input_gpio_pin == ptr->input_gpio_pin) {
       uint32_t target_duty = is_any_on_state == 0 ? ptr->target_duty : 0;
       ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
-                              target_duty, 450);
+                              target_duty, 2000);
 
       ptr->current_state = target_duty == 0 ? false : true;
       power_on_12v_source();
