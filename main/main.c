@@ -8,7 +8,6 @@
 #include "types.h"
 
 #include "buttons.h"
-#include "hello.h"
 #include "monocolor_led.h"
 #include "mqtt_connection.h"
 #include "wifi_connection.h"
