@@ -26,10 +26,10 @@ static void handle_incoming_event_from_mqtt_queue(void *arg) {
   struct MqttMessageEvent message_to_queue;
 
   while (1) {
-    if (xQueueReceive(mqttIncomingEventsHandleQueue, &message_to_queue,
+    if (xQueueReceive(mqtt_incoming_events_handle_queue, &message_to_queue,
                       portMAX_DELAY)) {
 
-      struct ChannelGpioMap *ptr = channelGpioMap;
+      struct ChannelGpioMap *ptr = channel_gpio_map;
       for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
         if (!strcmp(ptr->topic, message_to_queue.topic)) {
           set_led_state(ptr, true, message_to_queue.value);
@@ -71,7 +71,7 @@ void add_channel(struct ChannelGpioMap *channelConfig) {
 }
 
 void power_on_12v_source() {
-  struct ChannelGpioMap *ptr = channelGpioMap;
+  struct ChannelGpioMap *ptr = channel_gpio_map;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
     if (ptr->current_state) {
 
@@ -167,7 +167,7 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
 void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
   bool is_any_on_state = is_any_on(input_gpio_pin);
 
-  struct ChannelGpioMap *ptr = channelGpioMap;
+  struct ChannelGpioMap *ptr = channel_gpio_map;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
     if (input_gpio_pin == ptr->input_gpio_pin) {
       uint32_t target_duty = is_any_on_state == 0 ? ptr->target_duty : 0;
@@ -194,7 +194,7 @@ void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
 bool is_any_on(uint8_t input_gpio_pin) {
   bool is_any_active = false;
 
-  struct ChannelGpioMap *ptr = channelGpioMap;
+  struct ChannelGpioMap *ptr = channel_gpio_map;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
     if (input_gpio_pin == ptr->input_gpio_pin) {
       is_any_active = is_any_active | ptr->current_state;
@@ -207,7 +207,7 @@ bool is_any_on(uint8_t input_gpio_pin) {
 bool is_any_on_global(void) {
   bool is_any_active = false;
 
-  struct ChannelGpioMap *ptr = channelGpioMap;
+  struct ChannelGpioMap *ptr = channel_gpio_map;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
     is_any_active = is_any_active | ptr->current_state;
   }

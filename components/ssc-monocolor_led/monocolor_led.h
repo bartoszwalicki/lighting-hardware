@@ -14,8 +14,8 @@
 
 #define DELAY_POWER_OFF_12V 10000
 
-extern struct ChannelGpioMap channelGpioMap[];
-extern QueueHandle_t mqttIncomingEventsHandleQueue;
+extern struct ChannelGpioMap channel_gpio_map[];
+extern QueueHandle_t mqtt_incoming_events_handle_queue;
 
 bool is_any_on(uint8_t input_gpio_pin);
 bool is_any_on_global(void);

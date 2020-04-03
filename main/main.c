@@ -12,9 +12,9 @@
 #include "mqtt_connection.h"
 #include "wifi_connection.h"
 
-QueueHandle_t buttonActionsHandleQueue = NULL;
-QueueHandle_t mqttIncomingEventsHandleQueue = NULL;
-struct ChannelGpioMap channelGpioMap[SIZE_OF_GPIO_INPUTS] = {
+QueueHandle_t button_actions_handle_queue = NULL;
+QueueHandle_t mqtt_incoming_events_handle_queue = NULL;
+struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
     // Kitchen - sink
     {.input_gpio_pin = 23,
      .output_led_channel_pin = 5,
@@ -32,20 +32,20 @@ struct ChannelGpioMap channelGpioMap[SIZE_OF_GPIO_INPUTS] = {
 
 void config_buttons_and_leds() {
   // [Kitchen]
-  addButton(channelGpioMap[0].input_gpio_pin);
+  add_button(channel_gpio_map[0].input_gpio_pin);
   // Kitchen - sink
-  add_channel(&channelGpioMap[0]);
+  add_channel(&channel_gpio_map[0]);
   // Kitchen - wine stand
-  add_channel(&channelGpioMap[1]);
+  add_channel(&channel_gpio_map[1]);
 }
 
 void app_main(void) {
-  buttonActionsHandleQueue = xQueueCreate(5, sizeof(uint8_t));
-  mqttIncomingEventsHandleQueue =
+  button_actions_handle_queue = xQueueCreate(5, sizeof(uint8_t));
+  mqtt_incoming_events_handle_queue =
       xQueueCreate(10, sizeof(struct MqttMessageEvent));
 
-  initButtons(&buttonActionsHandleQueue);
-  init_leds(&buttonActionsHandleQueue);
+  init_buttons(&button_actions_handle_queue);
+  init_leds(&button_actions_handle_queue);
 
   init_12v_power_source();
 

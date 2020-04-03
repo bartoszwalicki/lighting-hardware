@@ -30,7 +30,7 @@ static void handleButtonPush(void *arg) {
   }
 }
 
-void initButtons(xQueueHandle *queueHandler) {
+void init_buttons(xQueueHandle *queueHandler) {
   button_queue_handle = queueHandler;
   gpio_push_events_queue = xQueueCreate(10, sizeof(uint32_t));
 
@@ -38,7 +38,7 @@ void initButtons(xQueueHandle *queueHandler) {
   gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 }
 
-void addButton(uint8_t gpio_pin) {
+void add_button(uint8_t gpio_pin) {
   gpio_config_t io_conf;
   io_conf.intr_type = GPIO_PIN_INTR_NEGEDGE;
   io_conf.pin_bit_mask = GPIO_PIN_SEL_CALC(gpio_pin);

@@ -6,7 +6,7 @@
 
 #include "../../main/types.h"
 
-extern QueueHandle_t mqttIncomingEventsHandleQueue;
+extern QueueHandle_t mqtt_incoming_events_handle_queue;
 
 void mqtt_init(void);
 void mqtt_publish(const char *topic, const char *data);

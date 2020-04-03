@@ -4,24 +4,24 @@ const char *TAG = "MQTT";
 esp_mqtt_client_handle_t _client = NULL;
 
 void handle_mqtt_incoming_event(esp_mqtt_event_handle_t event) {
-  char truncTopic[20];
+  char trunc_topic[20];
   uint32_t value = 0;
 
-  sprintf(truncTopic, "%.*s", event->topic_len, event->topic);
+  sprintf(trunc_topic, "%.*s", event->topic_len, event->topic);
 
-  truncTopic[event->topic_len - 2] = 0;
+  trunc_topic[event->topic_len - 2] = 0;
 
-  struct MqttMessageEvent messageToQueue;
-  strcpy(messageToQueue.topic, truncTopic);
+  struct MqttMessageEvent message_to_queue;
+  strcpy(message_to_queue.topic, trunc_topic);
 
   if (isdigit(*event->data)) {
-    sprintf(truncTopic, "%.*s", event->data_len, event->data);
+    sprintf(trunc_topic, "%.*s", event->data_len, event->data);
 
-    sscanf(truncTopic, "%d", &value);
+    sscanf(trunc_topic, "%d", &value);
   }
 
-  messageToQueue.value = value;
-  xQueueSend(mqttIncomingEventsHandleQueue, &messageToQueue, 0);
+  message_to_queue.value = value;
+  xQueueSend(mqtt_incoming_events_handle_queue, &message_to_queue, 0);
 }
 
 esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
