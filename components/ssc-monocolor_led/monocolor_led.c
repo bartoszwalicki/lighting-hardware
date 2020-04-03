@@ -141,10 +141,6 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
     selected_duty = channel_info->current_state ? 0 : channel_info->target_duty;
   }
 
-  ESP_LOGI(TAG, "Changing state of channel %d to %d to target duty of %d \r",
-           channel_info->led_channel, !channel_info->current_state,
-           channel_info->target_duty);
-
   ledc_set_duty(LEDC_HIGH_SPEED_MODE, channel_info->led_channel, selected_duty);
 
   channel_info->current_state = selected_duty == 0 ? false : true;
@@ -153,10 +149,14 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
 
   ledc_update_duty(LEDC_HIGH_SPEED_MODE, channel_info->led_channel);
 
+  ESP_LOGI(TAG, "Changing state of channel %d to %d to target duty of %d \r",
+           channel_info->led_channel, !channel_info->current_state,
+           channel_info->target_duty);
+
   if (send_mqtt) {
     char temp[5];
     sprintf(temp, "%d", selected_duty);
-    mqttPublish(channel_info->topic, temp);
+    mqtt_publish(channel_info->topic, temp);
   }
 
   if (selected_duty == 0) {
@@ -185,7 +185,7 @@ void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
 
       char temp[5];
       sprintf(temp, "%d", target_duty);
-      mqttPublish(ptr->topic, temp);
+      mqtt_publish(ptr->topic, temp);
     }
   }
   schedule_power_off_12v_source();

@@ -8,7 +8,7 @@
 
 extern QueueHandle_t mqttIncomingEventsHandleQueue;
 
-void mqttInit(void);
-void mqttPublish(const char *topic, const char *data);
+void mqtt_init(void);
+void mqtt_publish(const char *topic, const char *data);
 
 #endif

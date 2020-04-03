@@ -62,5 +62,5 @@ void app_main(void) {
 
   wifi_init_sta();
 
-  mqttInit();
+  mqtt_init();
 }

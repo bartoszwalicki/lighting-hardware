@@ -3,12 +3,12 @@
 const char *TAG = "MQTT";
 esp_mqtt_client_handle_t _client = NULL;
 
-void handleMqttIncomingEvent(esp_mqtt_event_handle_t event) {
+void handle_mqtt_incoming_event(esp_mqtt_event_handle_t event) {
   char truncTopic[20];
   uint32_t value = 0;
 
   sprintf(truncTopic, "%.*s", event->topic_len, event->topic);
-  ;
+
   truncTopic[event->topic_len - 2] = 0;
 
   struct MqttMessageEvent messageToQueue;
@@ -16,8 +16,8 @@ void handleMqttIncomingEvent(esp_mqtt_event_handle_t event) {
 
   if (isdigit(*event->data)) {
     sprintf(truncTopic, "%.*s", event->data_len, event->data);
-    ;
-    sscanf(&truncTopic, "%d", &value);
+
+    sscanf(truncTopic, "%d", &value);
   }
 
   messageToQueue.value = value;
@@ -38,7 +38,7 @@ esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
     ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
     break;
   case MQTT_EVENT_DATA:
-    handleMqttIncomingEvent(event);
+    handle_mqtt_incoming_event(event);
     break;
   case MQTT_EVENT_ERROR:
     ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
@@ -57,7 +57,7 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base,
   mqtt_event_handler_cb(event_data);
 }
 
-void mqttInit(void) {
+void mqtt_init(void) {
   esp_mqtt_client_config_t mqtt_cfg = {
       .uri = CONFIG_BROKER_URL,
   };
@@ -69,7 +69,7 @@ void mqttInit(void) {
   esp_mqtt_client_start(client);
 }
 
-void mqttPublish(const char *topic, const char *data) {
+void mqtt_publish(const char *topic, const char *data) {
   char valueTopic[20];
   sprintf(valueTopic, "%s/v", topic);
 
