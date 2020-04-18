@@ -9,6 +9,12 @@ static const char *TAG = "MonocolorLED";
 
 static uint8_t power_pin_state = 1;
 
+void get_current_duty(struct ChannelGpioMap *channel_info) {
+  char temp[5];
+  sprintf(temp, "%d", channel_info->current_duty);
+  mqtt_publish(channel_info->topic, temp);
+}
+
 static void handle_event_from_button_queue(void *arg) {
   uint8_t input_gpio_number;
 
@@ -32,7 +38,19 @@ static void handle_incoming_event_from_mqtt_queue(void *arg) {
       struct ChannelGpioMap *ptr = channel_gpio_map;
       for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
         if (!strcmp(ptr->topic, message_to_queue.topic)) {
-          set_led_state(ptr, true, message_to_queue.value);
+          switch (message_to_queue.operation) {
+          case 's':
+            set_led_state(ptr, true, message_to_queue.value);
+            break;
+          case 't':
+            full_toggle_led_with_fade(ptr->input_gpio_pin);
+            break;
+          case 'g':
+            get_current_duty(ptr);
+            break;
+          default:
+            break;
+          }
         }
       }
     }
@@ -144,6 +162,7 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
   ledc_set_duty(LEDC_HIGH_SPEED_MODE, channel_info->led_channel, selected_duty);
 
   channel_info->current_state = selected_duty == 0 ? false : true;
+  channel_info->current_duty = selected_duty;
 
   power_on_12v_source();
 
@@ -171,6 +190,7 @@ void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
     if (input_gpio_pin == ptr->input_gpio_pin) {
       uint32_t target_duty = is_any_on_state == 0 ? ptr->target_duty : 0;
+      ptr->current_duty = target_duty;
       ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
                               target_duty, 2000);
 

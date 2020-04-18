@@ -14,21 +14,43 @@
 
 QueueHandle_t button_actions_handle_queue = NULL;
 QueueHandle_t mqtt_incoming_events_handle_queue = NULL;
+
+// When input GPIO PIN > 100 then it is just ID, not connected with button
+
 struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
     // Kitchen - sink
     {.input_gpio_pin = 23,
-     .output_led_channel_pin = 5,
+     .output_led_channel_pin = 15,
      .led_channel = LEDC_CHANNEL_0,
      .current_state = false,
      .target_duty = 4095,
+     .current_duty = 0,
      .topic = "kitchen/sink\0"},
     // Kitches - wine stand
-    {.input_gpio_pin = 23,
-     .output_led_channel_pin = 4,
+    {.input_gpio_pin = 101,
+     .output_led_channel_pin = 2,
      .led_channel = LEDC_CHANNEL_1,
      .current_state = false,
-     .target_duty = 2000,
-     .topic = "kitchen/wine\0"}};
+     .target_duty = 4095,
+     .current_duty = 0,
+     .topic = "kitchen/wine\0"},
+    // Bathroom - under showe
+    {.input_gpio_pin = 102,
+     .output_led_channel_pin = 4,
+     .led_channel = LEDC_CHANNEL_2,
+     .current_state = false,
+     .target_duty = 4095,
+     .current_duty = 0,
+     .topic = "bathroom/shower\0"},
+    // Bathroom - mirror
+    {.input_gpio_pin = 103,
+     .output_led_channel_pin = 18,
+     .led_channel = LEDC_CHANNEL_3,
+     .current_state = false,
+     .target_duty = 4095,
+     .current_duty = 0,
+     .topic = "bathroom/mirror\0"},
+};
 
 void config_buttons_and_leds() {
   // [Kitchen]
@@ -37,6 +59,10 @@ void config_buttons_and_leds() {
   add_channel(&channel_gpio_map[0]);
   // Kitchen - wine stand
   add_channel(&channel_gpio_map[1]);
+  // Kitchen - sink
+  add_channel(&channel_gpio_map[2]);
+  // Kitchen - wine stand
+  add_channel(&channel_gpio_map[3]);
 }
 
 void app_main(void) {
