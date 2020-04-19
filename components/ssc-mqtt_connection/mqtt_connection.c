@@ -48,6 +48,16 @@ esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
     esp_mqtt_client_subscribe(client, "kitchen/wine/g", 0);
     esp_mqtt_client_subscribe(client, "bathroom/shower/g", 0);
     esp_mqtt_client_subscribe(client, "bathroom/mirror/g", 0);
+    // Power on led
+    esp_mqtt_client_subscribe(client, "kitchen/sink/u", 0);
+    esp_mqtt_client_subscribe(client, "kitchen/wine/u", 0);
+    esp_mqtt_client_subscribe(client, "bathroom/shower/u", 0);
+    esp_mqtt_client_subscribe(client, "bathroom/mirror/u", 0);
+    // Power off led
+    esp_mqtt_client_subscribe(client, "kitchen/sink/d", 0);
+    esp_mqtt_client_subscribe(client, "kitchen/wine/d", 0);
+    esp_mqtt_client_subscribe(client, "bathroom/shower/d", 0);
+    esp_mqtt_client_subscribe(client, "bathroom/mirror/d", 0);
     break;
   case MQTT_EVENT_DISCONNECTED:
     ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");

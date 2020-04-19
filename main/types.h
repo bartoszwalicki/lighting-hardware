@@ -16,6 +16,8 @@ struct MqttMessageEvent {
   // /s - set value (without fade)
   // /t - toggle with fade
   // /g - get current duty
+  // /u - power on with fade
+  // /d - power down with fade
   char topic[20];
   char operation;
   uint32_t value;

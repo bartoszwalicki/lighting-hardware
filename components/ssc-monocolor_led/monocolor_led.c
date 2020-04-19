@@ -48,6 +48,12 @@ static void handle_incoming_event_from_mqtt_queue(void *arg) {
           case 'g':
             get_current_duty(ptr);
             break;
+          case 'u':
+            power_on_with_fade(ptr->input_gpio_pin);
+            break;
+          case 'd':
+            power_off_with_fade(ptr->input_gpio_pin);
+            break;
           default:
             break;
           }
@@ -181,6 +187,58 @@ void set_led_state(struct ChannelGpioMap *channel_info, bool send_mqtt,
   if (selected_duty == 0) {
     schedule_power_off_12v_source();
   }
+}
+
+void power_on_with_fade(uint8_t input_gpio_pin) {
+  struct ChannelGpioMap *ptr = channel_gpio_map;
+  for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
+    if (input_gpio_pin == ptr->input_gpio_pin) {
+      uint32_t target_duty = ptr->target_duty;
+      ptr->current_duty = target_duty;
+      ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
+                              target_duty, 2000);
+
+      ptr->current_state = target_duty == 0 ? false : true;
+      power_on_12v_source();
+
+      ESP_LOGI(TAG,
+               "Changing state of channel %d to %d to target duty of %d \r",
+               ptr->led_channel, ptr->current_state, target_duty);
+      ledc_fade_start(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
+                      LEDC_FADE_NO_WAIT);
+
+      char temp[5];
+      sprintf(temp, "%d", target_duty);
+      mqtt_publish(ptr->topic, temp);
+    }
+  }
+  schedule_power_off_12v_source();
+}
+
+void power_off_with_fade(uint8_t input_gpio_pin) {
+  struct ChannelGpioMap *ptr = channel_gpio_map;
+  for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
+    if (input_gpio_pin == ptr->input_gpio_pin) {
+      uint32_t target_duty = 0;
+      ptr->current_duty = target_duty;
+      ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
+                              target_duty, 2000);
+
+      ptr->current_state = target_duty == 0 ? false : true;
+      power_on_12v_source();
+
+      ESP_LOGI(TAG,
+               "Changing state of channel %d to %d to target duty of %d \r",
+               ptr->led_channel, ptr->current_state, target_duty);
+      ledc_fade_start(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
+                      LEDC_FADE_NO_WAIT);
+
+      char temp[5];
+      sprintf(temp, "%d", target_duty);
+      mqtt_publish(ptr->topic, temp);
+    }
+  }
+  schedule_power_off_12v_source();
 }
 
 void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
