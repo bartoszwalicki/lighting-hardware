@@ -11,6 +11,14 @@ struct ChannelGpioMap {
   char topic[20];
 };
 
+struct ButtonEvent {
+  // Button action types
+  // 0 - short press
+  // 1 - long press
+  uint8_t input_gpio_pin;
+  uint8_t action_type;
+};
+
 struct MqttMessageEvent {
   // MQTT operation codes
   // /s - set value (without fade)

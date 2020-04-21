@@ -3,6 +3,7 @@
 static xQueueHandle *button_queue_handle = NULL;
 
 TaskHandle_t handle_event_from_queue_task_handler = NULL;
+TaskHandle_t handle_event_from_button_queue_task_handler = NULL;
 TaskHandle_t power_off_task_handler = NULL;
 
 static const char *TAG = "MonocolorLED";
@@ -16,12 +17,16 @@ void get_current_duty(struct ChannelGpioMap *channel_info) {
 }
 
 static void handle_event_from_button_queue(void *arg) {
-  uint8_t input_gpio_number;
+  struct ButtonEvent button_event;
 
   while (1) {
-    if (xQueueReceive(*button_queue_handle, &input_gpio_number,
-                      portMAX_DELAY)) {
-      full_toggle_led_with_fade(input_gpio_number);
+    if (xQueueReceive(*button_queue_handle, &button_event, portMAX_DELAY)) {
+      if (button_event.action_type == 0) {
+        full_toggle_led_with_fade(button_event.input_gpio_pin, false);
+      }
+      if (button_event.action_type == 1) {
+        full_toggle_led_with_fade(button_event.input_gpio_pin, true);
+      }
     }
 
     vTaskDelay(50 / portTICK_RATE_MS);
@@ -43,7 +48,7 @@ static void handle_incoming_event_from_mqtt_queue(void *arg) {
             set_led_state(ptr, true, message_to_queue.value);
             break;
           case 't':
-            full_toggle_led_with_fade(ptr->input_gpio_pin);
+            full_toggle_led_with_fade(ptr->input_gpio_pin, false);
             break;
           case 'g':
             get_current_duty(ptr);
@@ -70,8 +75,9 @@ void init_leds(xQueueHandle *button_queue_handler) {
 
   ledc_fade_func_install(0);
 
-  xTaskCreate(handle_event_from_button_queue, "handleEventFromQueue", 2048,
-              NULL, tskIDLE_PRIORITY, &handle_event_from_queue_task_handler);
+  xTaskCreate(handle_event_from_button_queue, "handleEventFromQueue", 4096,
+              NULL, tskIDLE_PRIORITY,
+              &handle_event_from_button_queue_task_handler);
   xTaskCreate(handle_incoming_event_from_mqtt_queue, "mqttEventQueue", 2048,
               NULL, tskIDLE_PRIORITY, &handle_event_from_queue_task_handler);
 }
@@ -241,13 +247,18 @@ void power_off_with_fade(uint8_t input_gpio_pin) {
   schedule_power_off_12v_source();
 }
 
-void full_toggle_led_with_fade(uint8_t input_gpio_pin) {
+void full_toggle_led_with_fade(uint8_t input_gpio_pin, bool half_fade) {
   bool is_any_on_state = is_any_on(input_gpio_pin);
 
   struct ChannelGpioMap *ptr = channel_gpio_map;
   for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
     if (input_gpio_pin == ptr->input_gpio_pin) {
       uint32_t target_duty = is_any_on_state == 0 ? ptr->target_duty : 0;
+
+      if (target_duty > 0 && half_fade) {
+        target_duty = 900;
+      }
+
       ptr->current_duty = target_duty;
       ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
                               target_duty, 2000);

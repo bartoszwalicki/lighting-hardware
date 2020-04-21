@@ -12,19 +12,31 @@ static void IRAM_ATTR gpio_isr_handler(void *arg) {
 
 static void handleButtonPush(void *arg) {
   uint32_t io_num;
+  struct ButtonEvent button_event;
+
   for (;;) {
     if (xQueueReceive(gpio_push_events_queue, &io_num, portMAX_DELAY)) {
+      button_event.input_gpio_pin = io_num;
+
       vTaskDelay(80 / portTICK_RATE_MS);
       if (gpio_get_level(io_num) == 0) {
-        ESP_LOGI(TAG, "Button GPIO[%d] pushed", io_num);
+        button_event.action_type = 0;
       }
 
       vTaskDelay(LONG_PRESS_DELAY / portTICK_RATE_MS);
       if (gpio_get_level(io_num) == 0) {
-        ESP_LOGI(TAG, "Button GPIO[%d] pushed LONG", io_num);
+        button_event.action_type = 1;
       }
 
-      xQueueSend(*button_queue_handle, &io_num, 0);
+      if (button_event.action_type > 0) {
+        ESP_LOGI(TAG, "Button GPIO[%d] pushed LONG", io_num);
+      } else {
+        ESP_LOGI(TAG, "Button GPIO[%d] pushed", io_num);
+      }
+
+      xQueueSend(*button_queue_handle, &button_event, 0);
+
+      vTaskDelay(2000 / portTICK_RATE_MS);
       gpio_isr_handler_add(io_num, gpio_isr_handler, (void *)io_num);
     }
   }

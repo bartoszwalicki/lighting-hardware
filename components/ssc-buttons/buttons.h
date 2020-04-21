@@ -8,6 +8,8 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 
+#include "../../main/types.h"
+
 #define ESP_INTR_FLAG_DEFAULT 0
 #define GPIO_PIN_SEL_CALC(gpio) (1ULL << gpio)
 #define LONG_PRESS_DELAY 500

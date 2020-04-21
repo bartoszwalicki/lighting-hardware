@@ -21,7 +21,7 @@ bool is_any_on(uint8_t input_gpio_pin);
 bool is_any_on_global(void);
 void power_on_with_fade(uint8_t input_gpio_pin);
 void power_off_with_fade(uint8_t input_gpio_pin);
-void full_toggle_led_with_fade(uint8_t input_gpio_pin);
+void full_toggle_led_with_fade(uint8_t input_gpio_pin, bool half_fade);
 void power_off_12v_source_task(void *pvParameters);
 void set_led_state(struct ChannelGpioMap *channelInfo, bool sendMqtt,
                    int customDuty);

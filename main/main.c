@@ -19,7 +19,7 @@ QueueHandle_t mqtt_incoming_events_handle_queue = NULL;
 
 struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
     // Kitchen - sink
-    {.input_gpio_pin = 23,
+    {.input_gpio_pin = 33,
      .output_led_channel_pin = 15,
      .led_channel = LEDC_CHANNEL_0,
      .current_state = false,
@@ -66,7 +66,7 @@ void config_buttons_and_leds() {
 }
 
 void app_main(void) {
-  button_actions_handle_queue = xQueueCreate(5, sizeof(uint8_t));
+  button_actions_handle_queue = xQueueCreate(5, sizeof(struct ButtonEvent));
   mqtt_incoming_events_handle_queue =
       xQueueCreate(10, sizeof(struct MqttMessageEvent));
 
