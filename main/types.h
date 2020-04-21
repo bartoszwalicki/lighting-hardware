@@ -8,6 +8,7 @@ struct ChannelGpioMap {
   bool current_state;
   uint32_t target_duty;
   uint32_t current_duty;
+  uint32_t half_dimm;
   char topic[20];
 };
 
@@ -24,8 +25,11 @@ struct MqttMessageEvent {
   // /s - set value (without fade)
   // /t - toggle with fade
   // /g - get current duty
+  // /v - current duty value
   // /u - power on with fade
   // /d - power down with fade
+  // /x - set half-fade value
+  // /z - current half-fade value
   char topic[20];
   char operation;
   uint32_t value;

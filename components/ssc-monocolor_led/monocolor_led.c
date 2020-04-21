@@ -59,6 +59,9 @@ static void handle_incoming_event_from_mqtt_queue(void *arg) {
           case 'd':
             power_off_with_fade(ptr->input_gpio_pin);
             break;
+          case 'x':
+            save_half_dimm_value(ptr, message_to_queue.value);
+            break;
           default:
             break;
           }
@@ -74,6 +77,8 @@ void init_leds(xQueueHandle *button_queue_handler) {
   button_queue_handle = button_queue_handler;
 
   ledc_fade_func_install(0);
+
+  read_half_dimm_values();
 
   xTaskCreate(handle_event_from_button_queue, "handleEventFromQueue", 4096,
               NULL, tskIDLE_PRIORITY,
@@ -256,7 +261,7 @@ void full_toggle_led_with_fade(uint8_t input_gpio_pin, bool half_fade) {
       uint32_t target_duty = is_any_on_state == 0 ? ptr->target_duty : 0;
 
       if (target_duty > 0 && half_fade) {
-        target_duty = 900;
+        target_duty = ptr->half_dimm;
       }
 
       ptr->current_duty = target_duty;
@@ -302,4 +307,25 @@ bool is_any_on_global(void) {
   }
 
   return is_any_active;
+}
+
+void read_half_dimm_values() {
+  ESP_LOGI(TAG, "Entering reading procedure");
+
+  struct ChannelGpioMap *ptr = channel_gpio_map;
+  for (size_t i = 0; i < SIZE_OF_GPIO_INPUTS; i++, ptr++) {
+    ptr->half_dimm = get_dimm(ptr->output_led_channel_pin);
+    ESP_LOGI(TAG, "Setting half-dim for %s to %i", ptr->topic, ptr->half_dimm);
+  }
+}
+
+void save_half_dimm_value(struct ChannelGpioMap *channel_info,
+                          uint32_t dimm_value) {
+  ESP_LOGI(TAG, "Setting half-dimm value of topic %s to %i",
+           channel_info->topic, dimm_value);
+  channel_info->half_dimm = dimm_value;
+  save_dimm(channel_info->output_led_channel_pin, dimm_value);
+  char temp[5];
+  sprintf(temp, "%d", dimm_value);
+  mqtt_publish_channel_half_dimm(channel_info->topic, temp);
 }

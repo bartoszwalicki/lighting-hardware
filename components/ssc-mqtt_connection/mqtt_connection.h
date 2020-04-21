@@ -10,5 +10,6 @@ extern QueueHandle_t mqtt_incoming_events_handle_queue;
 
 void mqtt_init(void);
 void mqtt_publish(const char *topic, const char *data);
+void mqtt_publish_channel_half_dimm(const char *topic, const char *data);
 
 #endif

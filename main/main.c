@@ -66,6 +66,15 @@ void config_buttons_and_leds() {
 }
 
 void app_main(void) {
+  // Initialize NVS
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
+      ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    ret = nvs_flash_init();
+  }
+  ESP_ERROR_CHECK(ret);
+
   button_actions_handle_queue = xQueueCreate(5, sizeof(struct ButtonEvent));
   mqtt_incoming_events_handle_queue =
       xQueueCreate(10, sizeof(struct MqttMessageEvent));
@@ -76,15 +85,6 @@ void app_main(void) {
   init_12v_power_source();
 
   config_buttons_and_leds();
-
-  // Initialize NVS
-  esp_err_t ret = nvs_flash_init();
-  if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
-      ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-    ESP_ERROR_CHECK(nvs_flash_erase());
-    ret = nvs_flash_init();
-  }
-  ESP_ERROR_CHECK(ret);
 
   wifi_init_sta();
 

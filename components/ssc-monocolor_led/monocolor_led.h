@@ -10,12 +10,17 @@
 
 #include "../../main/types.h"
 
+#include "dimm_storage.h"
 #include "mqtt_connection.h"
 
 #define DELAY_POWER_OFF_12V 10000
 
 extern struct ChannelGpioMap channel_gpio_map[];
 extern QueueHandle_t mqtt_incoming_events_handle_queue;
+
+void read_half_dimm_values();
+void save_half_dimm_value(struct ChannelGpioMap *channel_info,
+                          uint32_t dimm_value);
 
 bool is_any_on(uint8_t input_gpio_pin);
 bool is_any_on_global(void);

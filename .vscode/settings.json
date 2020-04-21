@@ -32,6 +32,7 @@
         "mqtt_connection.h": "c",
         "charconv": "c",
         "sstream": "c",
-        "regex": "c"
+        "regex": "c",
+        "dimm_storage.h": "c"
     }
 } 

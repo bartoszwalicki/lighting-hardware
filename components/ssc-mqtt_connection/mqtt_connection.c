@@ -17,7 +17,8 @@ void handle_mqtt_incoming_event(esp_mqtt_event_handle_t event) {
   struct MqttMessageEvent message_to_queue;
   strcpy(message_to_queue.topic, trunc_topic);
 
-  if (isdigit(*event->data) && operation_mode == 's') {
+  if (isdigit(*event->data) &&
+      (operation_mode == 's' || operation_mode == 'x')) {
     sprintf(trunc_topic, "%.*s", event->data_len, event->data);
 
     sscanf(trunc_topic, "%d", &value);
@@ -58,6 +59,11 @@ esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
     esp_mqtt_client_subscribe(client, "kitchen/wine/d", 0);
     esp_mqtt_client_subscribe(client, "bathroom/shower/d", 0);
     esp_mqtt_client_subscribe(client, "bathroom/mirror/d", 0);
+    // Set half-dimm
+    esp_mqtt_client_subscribe(client, "kitchen/sink/x", 0);
+    esp_mqtt_client_subscribe(client, "kitchen/wine/x", 0);
+    esp_mqtt_client_subscribe(client, "bathroom/shower/x", 0);
+    esp_mqtt_client_subscribe(client, "bathroom/mirror/x", 0);
     break;
   case MQTT_EVENT_DISCONNECTED:
     ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
@@ -100,6 +106,13 @@ void mqtt_init(void) {
 void mqtt_publish(const char *topic, const char *data) {
   char valueTopic[20];
   sprintf(valueTopic, "%s/v", topic);
+
+  esp_mqtt_client_publish(_client, valueTopic, data, 0, 0, 0);
+}
+
+void mqtt_publish_channel_half_dimm(const char *topic, const char *data) {
+  char valueTopic[20];
+  sprintf(valueTopic, "%s/z", topic);
 
   esp_mqtt_client_publish(_client, valueTopic, data, 0, 0, 0);
 }
