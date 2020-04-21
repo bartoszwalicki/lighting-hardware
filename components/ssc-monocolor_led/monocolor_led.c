@@ -207,7 +207,7 @@ void power_on_with_fade(uint8_t input_gpio_pin) {
       uint32_t target_duty = ptr->target_duty;
       ptr->current_duty = target_duty;
       ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
-                              target_duty, 2000);
+                              target_duty, FADE_TIME);
 
       ptr->current_state = target_duty == 0 ? false : true;
       power_on_12v_source();
@@ -233,7 +233,7 @@ void power_off_with_fade(uint8_t input_gpio_pin) {
       uint32_t target_duty = 0;
       ptr->current_duty = target_duty;
       ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
-                              target_duty, 2000);
+                              target_duty, FADE_TIME);
 
       ptr->current_state = target_duty == 0 ? false : true;
       power_on_12v_source();
@@ -266,7 +266,7 @@ void full_toggle_led_with_fade(uint8_t input_gpio_pin, bool half_fade) {
 
       ptr->current_duty = target_duty;
       ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, ptr->led_channel,
-                              target_duty, 2000);
+                              target_duty, FADE_TIME);
 
       ptr->current_state = target_duty == 0 ? false : true;
       power_on_12v_source();

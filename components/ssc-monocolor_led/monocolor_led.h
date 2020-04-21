@@ -14,6 +14,7 @@
 #include "mqtt_connection.h"
 
 #define DELAY_POWER_OFF_12V 10000
+#define FADE_TIME 1000
 
 extern struct ChannelGpioMap channel_gpio_map[];
 extern QueueHandle_t mqtt_incoming_events_handle_queue;

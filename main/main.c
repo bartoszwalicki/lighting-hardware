@@ -34,8 +34,8 @@ struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
      .target_duty = 4095,
      .current_duty = 0,
      .topic = "kitchen/wine\0"},
-    // Bathroom - under showe
-    {.input_gpio_pin = 102,
+    // Bathroom - under shower
+    {.input_gpio_pin = 32,
      .output_led_channel_pin = 4,
      .led_channel = LEDC_CHANNEL_2,
      .current_state = false,
@@ -55,13 +55,15 @@ struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
 void config_buttons_and_leds() {
   // [Kitchen]
   add_button(channel_gpio_map[0].input_gpio_pin);
+  // [Bathroom - Shower]
+  add_button(channel_gpio_map[2].input_gpio_pin);
   // Kitchen - sink
   add_channel(&channel_gpio_map[0]);
   // Kitchen - wine stand
   add_channel(&channel_gpio_map[1]);
-  // Kitchen - sink
+  // Bathroom - shower
   add_channel(&channel_gpio_map[2]);
-  // Kitchen - wine stand
+  // Bathroom - mirror
   add_channel(&channel_gpio_map[3]);
 }
 
