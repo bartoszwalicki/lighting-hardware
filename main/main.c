@@ -19,7 +19,7 @@ QueueHandle_t mqtt_incoming_events_handle_queue = NULL;
 
 struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
     // Kitchen - sink
-    {.input_gpio_pin = 33,
+    {.input_gpio_pin = 26,
      .output_led_channel_pin = 15,
      .led_channel = LEDC_CHANNEL_0,
      .current_state = false,
@@ -39,7 +39,7 @@ struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
      .output_led_channel_pin = 4,
      .led_channel = LEDC_CHANNEL_2,
      .current_state = false,
-     .target_duty = 4095,
+     .target_duty = 2000,
      .current_duty = 0,
      .topic = "bathroom/shower\0"},
     // Bathroom - mirror

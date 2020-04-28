@@ -8,7 +8,7 @@ TaskHandle_t power_off_task_handler = NULL;
 
 static const char *TAG = "MonocolorLED";
 
-static uint8_t power_pin_state = 1;
+static uint8_t power_pin_state = 0;
 
 void get_current_duty(struct ChannelGpioMap *channel_info) {
   char temp[5];
@@ -116,14 +116,14 @@ void power_on_12v_source() {
         power_off_task_handler = NULL;
       }
 
-      if (!power_pin_state) {
+      if (power_pin_state) {
         ESP_LOGD(TAG, "12V power source is on, returning\r");
         return;
       }
 
       ESP_LOGI(TAG, "Powering up 12V source\r");
-      power_pin_state = 0;
-      gpio_set_level(POWER_LED_12V_GPIO_PIN, 0);
+      power_pin_state = 1;
+      gpio_set_level(POWER_LED_12V_GPIO_PIN, 1);
 
       // Wait until hardware power source will spin up
       vTaskDelay(750 / portTICK_RATE_MS);
@@ -148,15 +148,15 @@ void schedule_power_off_12v_source() {
 void init_12v_power_source() {
   gpio_pad_select_gpio(POWER_LED_12V_GPIO_PIN);
   gpio_set_direction(POWER_LED_12V_GPIO_PIN, GPIO_MODE_OUTPUT);
-  gpio_set_level(POWER_LED_12V_GPIO_PIN, 1);
+  gpio_set_level(POWER_LED_12V_GPIO_PIN, 0);
 }
 
 void power_off_12v_source_task(void *pvParameters) {
   ESP_LOGI(TAG, "Power off planned\r");
   vTaskDelay(DELAY_POWER_OFF_12V / portTICK_RATE_MS);
 
-  power_pin_state = 1;
-  gpio_set_level(POWER_LED_12V_GPIO_PIN, 1);
+  power_pin_state = 0;
+  gpio_set_level(POWER_LED_12V_GPIO_PIN, 0);
 
   ESP_LOGI(TAG, "12V source powered off\r");
 
