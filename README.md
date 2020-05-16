@@ -11,4 +11,4 @@ Features:
 
 ---
 
-Checkout [front-end written in React](https://https://github.com/bartoszwalicki/lighting-frontend)!
+Checkout [front-end written in React](https://github.com/bartoszwalicki/lighting-frontend)!
