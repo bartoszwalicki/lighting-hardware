@@ -39,7 +39,7 @@ struct ChannelGpioMap channel_gpio_map[SIZE_OF_GPIO_INPUTS] = {
      .output_led_channel_pin = 4,
      .led_channel = LEDC_CHANNEL_2,
      .current_state = false,
-     .target_duty = 2000,
+     .target_duty = 650,
      .current_duty = 0,
      .topic = "bathroom/shower\0"},
     // Bathroom - mirror

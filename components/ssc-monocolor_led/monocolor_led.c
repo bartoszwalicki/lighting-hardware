@@ -126,7 +126,7 @@ void power_on_12v_source() {
       gpio_set_level(POWER_LED_12V_GPIO_PIN, 1);
 
       // Wait until hardware power source will spin up
-      vTaskDelay(750 / portTICK_RATE_MS);
+      vTaskDelay(350 / portTICK_RATE_MS);
       return;
     }
   }
